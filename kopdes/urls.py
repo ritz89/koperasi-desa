@@ -1,11 +1,12 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from commerce.views import test, test2
+from commerce.views import *
 
 urlpatterns = [
-    path('', test, name='test'),
+    path('', HomePageView.as_view(), name='home'),
     path('dashboard/', test2, name='dashboard'),
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
