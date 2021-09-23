@@ -171,3 +171,9 @@ class PosSalesItems(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, related_name='sales_items', null=True)
     sales_price = models.FloatField(default=0)
     qty = models.IntegerField(default=0)
+
+
+class Banner(models.Model):
+    title = models.CharField(max_length=50)
+    messages = models.CharField(max_length=100)
+    image = models.ImageField(null=True)
