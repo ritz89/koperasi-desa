@@ -1,0 +1,30 @@
+{% load static %}
+{% for item in items %}
+    <div class="col-lg-4 col-md-6">
+        <a href="#">
+            <div class="card card-product card-plain">
+                <div class="card-image">
+                    <img src="{% static '/img/no-image.png' %}" alt="...">
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ item.title }}</h4>
+                    <p class="card-description">
+                        {{ item.description }}</p>
+                    </p>
+                    <div class="card-footer">
+                        <div class="price-container">
+                            <span class="price"> Rp. {{ item.price }}</span>
+                        </div>
+                        <button class="btn btn-danger btn-neutral btn-icon btn-round pull-right"
+                                rel="tooltip" title="" data-placement="left"
+                                data-original-title="Remove from wishlist">
+                            <i class="now-ui-icons ui-2_favourite-28"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </a>
+        <!-- end card -->
+    </div>
+{% endfor %}
