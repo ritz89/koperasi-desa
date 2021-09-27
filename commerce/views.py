@@ -23,7 +23,7 @@ class HomePageView(View):
         item_queryset = Item.objects.all()
         if 'kategori' in request.GET:
             item_queryset = item_queryset.filter(category__category_name__icontains=request.GET['kategori'])
-        if 'name' in request.GET:
+        if 'nama' in request.GET:
             item_queryset = item_queryset.filter(title__icontains=request.GET['nama'])
         p = Paginator(item_queryset, 6)
         if 'page' in request.GET:
@@ -35,5 +35,8 @@ class HomePageView(View):
             'banner': news,
             'kategori': kategori,
             'items': items.object_list,
+            'page_obj': items
         }
+        if request.htmx:
+            return render(request, 'commerce/pages/home-page/partials/item_lists.html', context)
         return render(request, 'commerce/pages/home-page/index.html', context)

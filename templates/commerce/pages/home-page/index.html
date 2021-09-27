@@ -20,7 +20,14 @@
                                             <span class="input-group-text"><i
                                                     class="now-ui-icons ui-1_zoom-bold"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" placeholder="Cari Barang">
+                                        <input aria-label="Search"
+                                                   name="nama"
+                                                   hx-get="."
+                                                   hx-params="nama"
+                                                   hx-trigger="keyup changed delay:500ms"
+                                                   hx-target="#items-grid"
+                                                   hx-indicator=".htmx-indicator"
+                                                    type="text" class="form-control" placeholder="Cari Barang">
                                     </div>
                                 </h4>
                             </div>
@@ -28,57 +35,24 @@
                                 Kategori
                             </h4>
                             {% for kat in kategori %}
-                                <div class="card card-refine card-plain">
-                                    <div class="card-header" role="tab" id="headingTwo">
-                                        <h6>
-                                            <a class="collapsed" data-toggle="collapse" href="?kategori={{ kat.category_name }}">
+                                <a href="?kategori={{ kat.category_name }}">
+                                    <div class="card card-refine card-plain">
+                                        <div class="card-header" role="tab" id="headingTwo">
+                                            <h6>
                                                 {{ kat.category_name }}
                                                 <i class="now-ui-icons arrows-1_minimal-right"></i>
-                                            </a>
-                                        </h6>
+                                            </h6>
+                                        </div>
                                     </div>
-                                </div>
+                                </a>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
                 {#panel barang#}
                 <div class="col-md-9">
-                    <div class="row">
-                        {% for item in items %}
-                        <div class="col-lg-4 col-md-6">
-                            <a href="#">
-                                <div class="card card-product card-plain">
-                                    <div class="card-image">
-                                        <img src="{% static '/img/no-image.png' %}" alt="...">
-                                    </div>
-                                    <div class="card-body">
-                                        <h4 class="card-title">{{ item.title }}</h4>
-                                        <p class="card-description">
-                                            {{ item.description }}</p>
-                                        </p>
-                                        <div class="card-footer">
-                                            <div class="price-container">
-                                                <span class="price"> Rp. {{ item.price }}</span>
-                                            </div>
-                                            <button class="btn btn-danger btn-neutral btn-icon btn-round pull-right"
-                                                    rel="tooltip" title="" data-placement="left"
-                                                    data-original-title="Remove from wishlist">
-                                                <i class="now-ui-icons ui-2_favourite-28"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </a>
-                            <!-- end card -->
-                        </div>
-                        {% endfor %}
-                        <div class="col-md-3 ml-auto mr-auto">
-                            <button rel="tooltip" class="btn btn-primary btn-round" data-original-title="" title="">Load
-                                more...
-                            </button>
-                        </div>
+                    <div class="row" id="items-grid">
+                        {% include 'commerce/pages/home-page/partials/item_lists.html' %}
                     </div>
                 </div>
             </div>
