@@ -1,7 +1,10 @@
+import banner as banner
 from django.shortcuts import render
 
 # Create your views here.
 from django.views import View
+
+from commerce.models import Banner, ItemCategory
 
 
 def test(request):
@@ -15,4 +18,10 @@ def test2(request):
 class HomePageView(View):
 
     def get(self, request):
-        return render(request, 'commerce/pages/home-page/index.html')
+        news = Banner.objects.all()
+        kategori = ItemCategory.objects.all()
+        context = {
+            'banner': news,
+            'kategori': kategori,
+        }
+        return render(request, 'commerce/pages/home-page/index.html', context)

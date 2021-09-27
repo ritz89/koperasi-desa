@@ -27,50 +27,18 @@
                             <h4 class="card-title">
                                 Kategori
                             </h4>
-                            <div class="card card-refine card-plain">
-                                <div class="card-header" role="tab" id="headingTwo">
-                                    <h6>
-                                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
-                                           href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                            Clothing
-                                            <i class="now-ui-icons arrows-1_minimal-right"></i>
-                                        </a>
-                                    </h6>
-                                </div>
-                                <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input class="form-check-input" type="checkbox" checked="">
-                                                <span class="form-check-sign"></span>
-                                                Casual Shirts
-                                            </label>
-                                        </div>
+                            {% for kat in kategori %}
+                                <div class="card card-refine card-plain">
+                                    <div class="card-header" role="tab" id="headingTwo">
+                                        <h6>
+                                            <a class="collapsed" data-toggle="collapse" href="?kategori={{ kat.category_name }}">
+                                                {{ kat.category_name }}
+                                                <i class="now-ui-icons arrows-1_minimal-right"></i>
+                                            </a>
+                                        </h6>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card card-refine card-plain">
-                                <div class="card-header" role="tab" id="headingThree">
-                                    <h6>
-                                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
-                                           href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                            Designer
-                                            <i class="now-ui-icons arrows-1_minimal-right"></i>
-                                        </a>
-                                    </h6>
-                                </div>
-                            </div>
-                            <div class="card card-refine card-plain">
-                                <div class="card-header" role="tab" id="headingThree">
-                                    <h6>
-                                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
-                                           href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                            Designer
-                                            <i class="now-ui-icons arrows-1_minimal-right"></i>
-                                        </a>
-                                    </h6>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
