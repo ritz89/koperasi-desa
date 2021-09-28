@@ -1,0 +1,122 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Check-Out{% endblock %}
+
+{% block header %}
+    <div class="page-header page-header-mini header-filter">
+        <div class="page-header-image" style="background-color: orange;"></div>
+        <div class="content-center text-center">
+            <div class="row">
+                <div class="col-md-8 ml-auto mr-auto">
+                    <h1 class="title">Shopping Cart</h1>
+                    <h4 class="description text-white">Selesaikan belanja di sini</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="section">
+        <div class="container">
+            <div class="space-100"></div>
+            <div id="contentAreas" class="cd-section">
+                <div id="tables">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card card-plain">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-shopping">
+                                            <thead class="">
+                                            <tr>
+                                                <th class="text-center">
+                                                </th>
+                                                <th>
+                                                    Barang
+                                                </th>
+                                                <th class="text-right">
+                                                    Harga
+                                                </th>
+                                                <th class="text-right">
+                                                    Jumlah
+                                                </th>
+                                                <th class="text-right">
+                                                    Qty
+                                                </th>
+                                                <th class="text-right">
+
+                                                </th>
+                                                <th class="text-right">
+                                                    Subtotal
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="img-container">
+                                                        <img src="./assets/img//saint-laurent.jpg" alt="no image">
+                                                    </div>
+                                                </td>
+                                                <td class="td-name">
+                                                    <a href="#jacket">Suede Biker Jacket</a>
+                                                    <br>
+                                                    <small>by Saint Laurent</small>
+                                                </td>
+                                                <td class="td-number">
+                                                    <small>€</small>3,390
+                                                </td>
+                                                <td class="td-number">
+                                                    1
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-info btn-sm"><i
+                                                                class="now-ui-icons ui-1_simple-delete"></i></button>
+                                                        <button class="btn btn-info btn-sm"><i
+                                                                class="now-ui-icons ui-1_simple-add"></i></button>
+                                                    </div>
+                                                </td>
+                                                <td class="td-number">
+                                                    <small>€</small>549
+                                                </td>
+                                                <td class="td-actions">
+                                                    <button type="button" rel="tooltip" data-placement="left" title=""
+                                                            class="btn btn-neutral" data-original-title="Remove item">
+                                                        <i class="now-ui-icons ui-1_simple-remove"></i>
+                                                    </button>
+                                                </td>
+                                               <td class="td-number">
+                                                    <small>€</small>549
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td colspan="3">
+                                                </td>
+                                                <td class="td-total">
+                                                    Total
+                                                </td>
+                                                <td class="td-price">
+                                                    <small>€</small>2,346
+                                                </td>
+                                                <td colspan="3" class="text-right">
+                                                    <button type="button" rel="tooltip" class="btn btn-info btn-round "
+                                                            data-original-title="" title="">
+                                                        Pengiriman
+                                                        <i class="now-ui-icons arrows-1_minimal-right"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

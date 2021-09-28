@@ -1,7 +1,7 @@
 {% load static %}
 {% for item in items %}
     <div class="col-lg-4 col-md-6">
-        <a href="#">
+        <a href="{% url 'item-page' item.id %}">
             <div class="card card-product card-plain">
                 <div class="card-image">
                     {% if item.thumbnail %}
@@ -16,21 +16,8 @@
                         {{ item.description }}</p>
                     </p>
                     <div class="card-footer">
-                        <div class="price-container">
+                        <div class="price-container align-items-center">
                             <span class="price"> Rp. {{ item.price }}</span>
-                        </div>
-                        <div>
-                            <form hx-post="{% url 'add_order_item' item.id %}"
-                                  hx-target="#shopping-cart"
-                                  class="d-flex justify-content-left">
-                                {% csrf_token %}
-                                <!-- Default input -->
-                                <input type="number" value="{{ ordered }}" aria-label="qty" name="qty" id="qty" class="form-control"
-                                       style="width: 100px">
-                                <button class="btn btn-primary btn-md my-0 p" type="submit">Add to cart
-                                    <i class="fas fa-shopping-cart ml-1"></i>
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>

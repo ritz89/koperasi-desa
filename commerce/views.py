@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Prefetch
 from django.http import HttpResponse
@@ -6,6 +7,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views import View
+from django.views.generic import DetailView
 
 from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery
 
@@ -69,10 +71,56 @@ def add_order_item(request, item_id):
     else:
         item_in_cart.delete()
     context = {
-        'order': user_order
+        'order': user_order,
+        'delivery': delivery
     }
     print(user_order.total)
     if request.htmx:
         return render(request, 'layouts/partials/carts.html', context)
-    return render(request, 'order/shopping-cart.html', context)
+    return render(request, 'commerce/pages/shopping_cart/index.html', context)
 
+
+class ShoppingCartView(LoginRequiredMixin, View):
+    login_url = '/accounts/login/'
+    redirect_field_name = 'redirect_to'
+
+    def get(self, request):
+        order = Order.objects.select_related('delivery').filter(user=request.user, ordered=False). \
+            prefetch_related('order_items').first()
+        context = {
+            'order': order
+        }
+        return render(request, 'commerce/pages/shopping_cart/index.html', context)
+
+    def post(self, request):
+        try:
+            order = Order.objects.select_related('delivery').get(pk=request.POST.get('id')). \
+                prefetch_related('order_items')
+        except Order.DoesNotExist:
+            return HttpResponse(status=404)
+        order.ordered = True
+        context = {
+            'order': order
+        }
+        return render(request, 'commerce/pages/shopping_cart/index.html', context)
+
+
+class ItemPage(DetailView):
+    models = Item
+    template_name = 'commerce/pages/item-details/index.html'
+    context_object_name = 'item'
+    queryset = Item.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            qs = OrderItem.objects.all().filter(order__user=self.request.user, item=context['item'],
+                                                order__ordered=False).first()
+            if qs:
+                context['ordered'] = qs.qty
+            else:
+                context['ordered'] = 0
+        else:
+            context['ordered'] = 0
+        context['items'] = Item.objects.all().filter(category__in=context['item'].category.all())
+        return context
