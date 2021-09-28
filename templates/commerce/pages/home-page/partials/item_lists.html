@@ -4,7 +4,11 @@
         <a href="#">
             <div class="card card-product card-plain">
                 <div class="card-image">
-                    <img src="{% static '/img/no-image.png' %}" alt="...">
+                    {% if item.thumbnail %}
+                    <img src="{{ item.thumbnail.url }}" alt="{{ item.thumbnail.url}}" width="150" height="200"/>
+                    {% else %}
+                    <img src="{% static '/img/no-image.png' %}" alt="no image available" width="150" height="200" />
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     <h4 class="card-title">{{ item.title }}</h4>
@@ -15,11 +19,19 @@
                         <div class="price-container">
                             <span class="price"> Rp. {{ item.price }}</span>
                         </div>
-                        <button class="btn btn-danger btn-neutral btn-icon btn-round pull-right"
-                                rel="tooltip" title="" data-placement="left"
-                                data-original-title="Remove from wishlist">
-                            <i class="now-ui-icons ui-2_favourite-28"></i>
-                        </button>
+                        <div>
+                            <form hx-post="{% url 'add_order_item' item.id %}"
+                                  hx-target="#shopping-cart"
+                                  class="d-flex justify-content-left">
+                                {% csrf_token %}
+                                <!-- Default input -->
+                                <input type="number" value="{{ ordered }}" aria-label="qty" name="qty" id="qty" class="form-control"
+                                       style="width: 100px">
+                                <button class="btn btn-primary btn-md my-0 p" type="submit">Add to cart
+                                    <i class="fas fa-shopping-cart ml-1"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

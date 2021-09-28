@@ -15,17 +15,10 @@
         <div class="collapse navbar-collapse" data-nav-image="{% static '/img/blurred-image-1.jpg' %}"
              data-color="orange">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link">
-                        <i class="now-ui-icons shopping_basket">
-                            {% if order_item_count %}
-                                <span class="badge badge-orange z-depth-1 mr-1"> {{ order_item_count }} </span>
-                            {% endif %}
-                        </i>
-                        <p>Kantong Belanja</p>
-                    </a>
-                </li>
                 {% if user.is_authenticated %}
+                    <li class="nav-item dropdown" id="shopping-cart">
+                        {% include 'layouts/partials/carts.html'%}
+                    </li>
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown">
                             <i class="now-ui-icons design_image" aria-hidden="true"></i>
@@ -33,13 +26,14 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                             {% if user.is_staff %}
-                            <a class="dropdown-item" href="../examples/signup-page.html">
-                                <i class="now-ui-icons shopping_credit-card"></i> POS
-                            </a>
+                                <a class="dropdown-item" href="../examples/signup-page.html">
+                                    <i class="now-ui-icons shopping_credit-card"></i> POS
+                                </a>
                             {% endif %}
                             <a class="dropdown-item" href="#"><i class="now-ui-icons ui-1_settings-gear-63"></i>Profile</a>
                             <a class="dropdown-item" href="#"><i class="now-ui-icons shopping_delivery-fast"></i>Transaksi</a>
-                            <a class="dropdown-item" href="{% url 'account_logout' %}"><i class="now-ui-icons sport_user-run"></i>Sign Out</a>
+                            <a class="dropdown-item" href="{% url 'account_logout' %}"><i
+                                    class="now-ui-icons sport_user-run"></i>Sign Out</a>
                         </div>
                     </li>
                 {% else %}
