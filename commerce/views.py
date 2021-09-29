@@ -124,6 +124,13 @@ def add_shopping_cart_item(request, pk):
     return render(request, 'commerce/pages/shopping_cart/partials/order_items_list.html', context)
 
 
+class DeliveryPage(DetailView):
+    models = Delivery
+    template_name = 'commerce/pages/shopping_cart/delivery.html'
+    context_object_name = 'delivery'
+    queryset = Delivery.objects.all()
+
+
 class ItemPage(DetailView):
     models = Item
     template_name = 'commerce/pages/item-details/index.html'

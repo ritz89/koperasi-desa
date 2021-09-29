@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load static %}
 {% for item in items %}
     <div class="col-lg-4 col-md-6">
@@ -5,9 +6,9 @@
             <div class="card card-product card-plain">
                 <div class="card-image">
                     {% if item.thumbnail %}
-                    <img src="{{ item.thumbnail.url }}" alt="{{ item.thumbnail.url}}" width="150" height="200"/>
+                        <img src="{{ item.thumbnail.url }}" alt="{{ item.thumbnail.url }}" width="150" height="200"/>
                     {% else %}
-                    <img src="{% static '/img/no-image.png' %}" alt="no image available" width="150" height="200" />
+                        <img src="{% static '/img/no-image.png' %}" alt="no image available" width="150" height="200"/>
                     {% endif %}
                 </div>
                 <div class="card-body">
@@ -17,7 +18,7 @@
                     </p>
                     <div class="card-footer">
                         <div class="price-container align-items-center">
-                            <span class="price"> Rp. {{ item.price }}</span>
+                            <span class="price"> Rp. {{ item.price|intcomma }}</span>
                         </div>
                     </div>
                 </div>
@@ -30,7 +31,7 @@
 {% endfor %}
 
 <div class="col-md-6 ml-auto mr-auto">
-                            <div class="pagination">
+    <div class="pagination">
                                 <span class="step-links">
                                     {% if page_obj.has_previous %}
                                         <a href="?page=1">&laquo; first</a>
@@ -46,5 +47,5 @@
                                         <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
                                     {% endif %}
                                 </span>
-                            </div>
-                        </div>
+    </div>
+</div>

@@ -1,3 +1,4 @@
+import requests
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -112,7 +113,35 @@ class Delivery(models.Model):
     distance = models.FloatField(default=0, null=True)
     dusun = models.ForeignKey(Dusun, null=True, on_delete=models.CASCADE)
     status = models.IntegerField(choices=DELIVERY_STATUS, default=1)
-    delivery_cost = models.IntegerField(default=15000)
+    self_pick = models.BooleanField(default=False)
+
+    def calculate_distance(self):
+        if self.latitude and self.longitude:
+            headers = {
+                'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+            }
+            call = requests.get(
+                'https://api.openrouteservice.org/v2/directions/driving-car?api_key'
+                '=5b3ce3597851110001cf624860dd45501cb64305a4fb8c8d2b012616&start='
+                '117.060181,-0.588735&end={longitude},{latitude}'.format(longitude=self.longitude,
+                                                                         latitude=self.latitude),
+                headers=headers)
+            data = call.json()
+            self.distance = int(data['features'][0]['properties']['summary']['distance'])/1000
+        else:
+            self.distance = None
+
+    @property
+    def delivery_cost(self):
+        if self.self_pick:
+            return 0
+        elif self.dusun:
+            return self.dusun.ongkir
+        else:
+            if self.distance < 10:
+                return 8000
+            else:
+                return int((8000 +(self.distance - 10) * 1500)/1000)*1000
 
 
 class SourceAddress(models.Model):
