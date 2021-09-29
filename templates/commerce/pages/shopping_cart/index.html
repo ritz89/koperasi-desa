@@ -1,4 +1,5 @@
 {% extends "layouts/base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Check-Out{% endblock %}
@@ -39,75 +40,16 @@
                                                 <th class="text-right">
                                                     Harga
                                                 </th>
-                                                <th class="text-right">
+                                                <th class="text-center">
                                                     Jumlah
-                                                </th>
-                                                <th class="text-right">
-                                                    Qty
-                                                </th>
-                                                <th class="text-right">
-
                                                 </th>
                                                 <th class="text-right">
                                                     Subtotal
                                                 </th>
                                             </tr>
                                             </thead>
-                                            <tbody>
-                                            <tr>
-                                                <td>
-                                                    <div class="img-container">
-                                                        <img src="./assets/img//saint-laurent.jpg" alt="no image">
-                                                    </div>
-                                                </td>
-                                                <td class="td-name">
-                                                    <a href="#jacket">Suede Biker Jacket</a>
-                                                    <br>
-                                                    <small>by Saint Laurent</small>
-                                                </td>
-                                                <td class="td-number">
-                                                    <small>€</small>3,390
-                                                </td>
-                                                <td class="td-number">
-                                                    1
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-info btn-sm"><i
-                                                                class="now-ui-icons ui-1_simple-delete"></i></button>
-                                                        <button class="btn btn-info btn-sm"><i
-                                                                class="now-ui-icons ui-1_simple-add"></i></button>
-                                                    </div>
-                                                </td>
-                                                <td class="td-number">
-                                                    <small>€</small>549
-                                                </td>
-                                                <td class="td-actions">
-                                                    <button type="button" rel="tooltip" data-placement="left" title=""
-                                                            class="btn btn-neutral" data-original-title="Remove item">
-                                                        <i class="now-ui-icons ui-1_simple-remove"></i>
-                                                    </button>
-                                                </td>
-                                               <td class="td-number">
-                                                    <small>€</small>549
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td colspan="3">
-                                                </td>
-                                                <td class="td-total">
-                                                    Total
-                                                </td>
-                                                <td class="td-price">
-                                                    <small>€</small>2,346
-                                                </td>
-                                                <td colspan="3" class="text-right">
-                                                    <button type="button" rel="tooltip" class="btn btn-info btn-round "
-                                                            data-original-title="" title="">
-                                                        Pengiriman
-                                                        <i class="now-ui-icons arrows-1_minimal-right"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            <tbody id="chart-items-table">
+                                            {% include 'commerce/pages/shopping_cart/partials/order_items_list.html'%}
                                             </tbody>
                                         </table>
                                     </div>

@@ -1,15 +1,21 @@
 {% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
 
 {% block title %}{{ item.title }} page{% endblock %}
 
 {% block header %}
     <div class="page-header page-header-mini header-filter">
+    {% if item.thumbnail %}
         <div class="page-header-image" style="background-image: url('{{ item.thumbnail.url }}');"></div>
-        <div class="content-center text-center">
+    {% else %}
+        <div class="page-header-image" style="background-color: #ff471d;"></div>
+    {% endif %}
+    <div class="content-center text-center">
             <div class="row">
                 <div class="col-md-8 ml-auto mr-auto">
-                    <h1 class="title">Shopping Cart</h1>
-                    <h4 class="description text-white">Selesaikan belanja di sini</h4>
+                    <h1 class="title">{{ item.title }}</h1>
                 </div>
             </div>
         </div>
@@ -58,13 +64,23 @@
                     <div class="col-md-6 ml-auto mr-auto">
                         <h2 class="title"> {{ item.title }} </h2>
                         <h5 class="category">{{ item.description }}</h5>
-                        <h2 class="main-price">Rp. {{ item.price }}</h2>
+
+                        <h2 class="main-price">Rp. {{ item.price|intcomma }}</h2>
 
                         <div class="row justify-content-end">
-                            <form class="form-inline">
-                                <input type="number" class="form-control" placeholder="qty">
-                                <button class="btn btn-primary mr-3">Add to Cart &nbsp;<i
+                            <form class="form-inline"
+                                  hx-post="{% url 'add_order_item' item.id %}"
+                                  hx-target="#shopping-cart"
+                            >
+                             {% csrf_token %}
+                                <input type="number" class="form-control" placeholder="qty" name="qty" id="qty" value="{{ ordered|floatformat:0|intcomma }}">
+                                {% if user.is_authenticated %}
+                                <button class="btn btn-primary mr-3" type="submit">Add to Cart &nbsp;<i
                                     class="now-ui-icons shopping_cart-simple"></i></button>
+                                {% else %}
+                                    <a class="btn btn-primary mr-3" href="{% url 'account_login' %}">Add to Cart &nbsp;<i
+                                    class="now-ui-icons shopping_cart-simple"></i></a>
+                                {% endif %}
                             </form>
 
                         </div>
@@ -74,65 +90,13 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-8 ml-auto mr-auto text-center">
-                                <h2 class="title">Not convinced yet!</h2>
-                                <h4 class="description">Havenly is a convenient, personal and affordable way to
-                                    redecorate
-                                    your home room by room. Collaborate with our professional interior designers on our
-                                    online platform. </h4>
+                                <h2 class="title">Cari barang dengan kategori yang sama</h2>
+                                <h4 class="description">di sini ada daftar barang-barang
+                                    yang mungkin anda juga inginkan. </h4>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="card card-background card-raised" data-background-color=""
-                                     style="background-image: url('../assets/img/bg24.jpg')">
-                                    <div class="info">
-                                        <div class="icon icon-white">
-                                            <i class="now-ui-icons shopping_delivery-fast"></i>
-                                        </div>
-                                        <div class="description">
-                                            <h4 class="info-title">1 Day Delivery </h4>
-                                            <p>Divide details about your product or agency work into parts. Write a few
-                                                lines about each one. A paragraph describing a feature will be
-                                                enough.</p>
-                                            <a href="#pablo" class="ml-3">Find more...</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-background card-raised" data-background-color=""
-                                     style="background-image: url('../assets/img/bg28.jpg')">
-                                    <div class="info">
-                                        <div class="icon icon-white">
-                                            <i class="now-ui-icons business_badge"></i>
-                                        </div>
-                                        <div class="description">
-                                            <h4 class="info-title">Refund Policy</h4>
-                                            <p>Divide details about your product or agency work into parts. Write a few
-                                                lines about each one. Very good refund policy just for you.</p>
-                                            <a href="#pablo">Find more...</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-background card-raised" data-background-color=""
-                                     style="background-image: url('../assets/img/bg25.jpg')">
-                                    <div class="info">
-                                        <div class="icon">
-                                            <i class="now-ui-icons ui-2_favourite-28"></i>
-                                        </div>
-                                        <div class="description">
-                                            <h4 class="info-title">Popular Item</h4>
-                                            <p>Share a floor plan, and we'll create a visualization of your room. A
-                                                paragraph describing a feature will be enough. This is a popular item
-                                                for
-                                                you.</p>
-                                            <a href="#pablo" class="ml-3">Find more...</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% include 'commerce/pages/home-page/partials/item_lists.html' %}
                         </div>
                     </div>
                 </div>

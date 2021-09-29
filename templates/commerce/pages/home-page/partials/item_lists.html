@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <h4 class="card-title">{{ item.title }}</h4>
                     <p class="card-description">
-                        {{ item.description }}</p>
+                        {{ item.description|truncatechars:20 }}</p>
                     </p>
                     <div class="card-footer">
                         <div class="price-container align-items-center">

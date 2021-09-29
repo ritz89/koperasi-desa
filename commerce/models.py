@@ -81,6 +81,10 @@ class OrderItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='order_item')
     qty = models.FloatField()
 
+    @property
+    def subtotal(self):
+        return self.item.price * self.qty
+
     def __str__(self):
         return self.item.title
 

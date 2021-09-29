@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'import_export',
     'django_htmx',
+    'django.contrib.humanize',
 
     'commerce',
 ]

@@ -105,6 +105,25 @@ class ShoppingCartView(LoginRequiredMixin, View):
         return render(request, 'commerce/pages/shopping_cart/index.html', context)
 
 
+@login_required()
+def add_shopping_cart_item(request, pk):
+    order_item = OrderItem.objects.get(pk=pk)
+    if 'qty' in request.POST:
+        quantity = int(request.POST.get('qty'))
+    else:
+        return
+    if quantity > 0:
+        order_item.qty = quantity
+        order_item.save()
+    else:
+        order_item.delete()
+    order = order_item.order
+    context = {
+        'order': order
+    }
+    return render(request, 'commerce/pages/shopping_cart/partials/order_items_list.html', context)
+
+
 class ItemPage(DetailView):
     models = Item
     template_name = 'commerce/pages/item-details/index.html'
