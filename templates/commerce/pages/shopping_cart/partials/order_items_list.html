@@ -56,13 +56,6 @@
     <td class="td-price">
         <small>Rp. </small> {{ order.subtotal|floatformat:0|intcomma }}
     </td>
-    <td colspan="3" class="text-right">
-        <a href="{% url 'delivery-page' order.delivery.id %}" class="btn btn-info btn-round "
-                data-original-title="" title="">
-            Pengiriman
-            <i class="now-ui-icons arrows-1_minimal-right"></i>
-        </a>
-    </td>
 </tr>
 
 {% endlanguage %}

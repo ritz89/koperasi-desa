@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import DetailView
 
+from commerce.forms import DeliveryForm
 from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery
 
 
@@ -50,6 +51,10 @@ class HomePageView(View):
 @login_required
 def add_order_item(request, item_id):
     user_order, created = Order.objects.get_or_create(user=request.user, ordered=False)
+    if created:
+        delivery = Delivery.objects.create(self_pick=True)
+        user_order.delivery = delivery
+        user_order.save()
     try:
         item = Item.objects.get(pk=item_id)
     except Item.DoesNotExist:
@@ -58,13 +63,6 @@ def add_order_item(request, item_id):
         item_in_cart = user_order.order_items.get(item=item)
     except OrderItem.DoesNotExist:
         item_in_cart = OrderItem.objects.create(order=user_order, item=item, qty=0)
-    try:
-        delivery = user_order.delivery
-    except Delivery.DoesNotExist:
-        delivery = Delivery.objects.create(order=user_order, address='',
-                                           latitude=Delivery.koperasi_location['latitude'],
-                                           longitude=Delivery.koperasi_location['longitude'], distance=0, status=1,
-                                           delivery_cost=0)
     if int(request.POST.get('qty')) > 0:
         item_in_cart.qty = request.POST.get('qty')
         item_in_cart.save()
@@ -72,7 +70,6 @@ def add_order_item(request, item_id):
         item_in_cart.delete()
     context = {
         'order': user_order,
-        'delivery': delivery
     }
     print(user_order.total)
     if request.htmx:
@@ -85,10 +82,13 @@ class ShoppingCartView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def get(self, request):
-        order = Order.objects.select_related('delivery').filter(user=request.user, ordered=False). \
-            prefetch_related('order_items').first()
+        order = Order.objects.filter(user=request.user, ordered=False). \
+            prefetch_related('order_items').prefetch_related('delivery').first()
+        print(order)
+        delivery_form = DeliveryForm()
         context = {
-            'order': order
+            'order': order,
+            'delivery_form': delivery_form
         }
         return render(request, 'commerce/pages/shopping_cart/index.html', context)
 
@@ -124,13 +124,6 @@ def add_shopping_cart_item(request, pk):
     return render(request, 'commerce/pages/shopping_cart/partials/order_items_list.html', context)
 
 
-class DeliveryPage(DetailView):
-    models = Delivery
-    template_name = 'commerce/pages/shopping_cart/delivery.html'
-    context_object_name = 'delivery'
-    queryset = Delivery.objects.all()
-
-
 class ItemPage(DetailView):
     models = Item
     template_name = 'commerce/pages/item-details/index.html'
@@ -150,3 +143,14 @@ class ItemPage(DetailView):
             context['ordered'] = 0
         context['items'] = Item.objects.all().filter(category__in=context['item'].category.all())
         return context
+
+
+def delivery_options(request):
+    if request.htmx:
+        if request.GET['radioPengiriman'] == 'self_pick':
+            return render(request, 'commerce/pages/shopping_cart/partials/self-pick-do.html')
+        elif request.GET['radioPengiriman'] == 'dusun':
+            return render(request, 'commerce/pages/shopping_cart/partials/dusun-do.html')
+        else:
+            return render(request, 'commerce/pages/shopping_cart/partials/location-do.html')
+    return HttpResponse('<h1>Page was found</h1>')

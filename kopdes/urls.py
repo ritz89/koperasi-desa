@@ -1,3 +1,6 @@
+import hijack
+import hijack as hijack
+from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -9,11 +12,12 @@ urlpatterns = [
     path('item-detail/<item_id>/cart-add-item', add_order_item, name='add_order_item'),
     path('shopping-cart/', ShoppingCartView.as_view(), name='shopping_cart'),
     path('shopping-cart/item/<pk>/', add_shopping_cart_item, name='shopping_cart_item_update'),
-    path('order-delivery/<pk>/', DeliveryPage.as_view(), name='delivery-page'),
     path('item-details/<pk>/', ItemPage.as_view(), name='item-page'),
     path('dashboard/', test2, name='dashboard'),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
+    path('delivery-options/', delivery_options, name='delivery-form'),
+
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
