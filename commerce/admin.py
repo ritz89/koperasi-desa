@@ -25,6 +25,7 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(ItemCategory)
 admin.site.register(MediaLibrary)
 admin.site.register(Banner)
+admin.site.register(Dusun)
 
 admin.site.register(Purchase)
 admin.site.register(PurchaseItems)

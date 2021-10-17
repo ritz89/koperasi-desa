@@ -1,0 +1,40 @@
+{% load i18n %}
+{% load humanize %}
+<div class="card p-2">
+    <div class="card-header text-center pb-1">
+        <h5>ringkasan pesanan</h5>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>detail</th>
+                <th class="text-right">biaya</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% language 'de' %}
+                <tr>
+                    <td>belanja</td>
+                    <td class="text-right">{{ order.subtotal|floatformat:0|intcomma }}</td>
+                </tr>
+                <tr>
+                    <td>pengiriman - {% if order.delivery.address.dusun %}({{ order.delivery.address.dusun }}){% else %}
+                        ({{ order.delivery.distance }} KM){% endif %}</td>
+                    <td class="text-right">{{ order.delivery.delivery_cost|floatformat:0|intcomma }}</td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td class="text-right"><small>Rp.</small><b>{{ order.total|floatformat:0|intcomma }}</b></td>
+                </tr>
+            {% endlanguage %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <form action="{% url 'confirm-order' order.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-round">Order</button>
+        </form>
+    </div>
+</div>

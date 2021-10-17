@@ -1,0 +1,40 @@
+<div class="card">
+    <div class="card-header text-center">
+        <h4>Alamat Pengiriman:</h4>
+    </div>
+    <div class="card-body">
+        <blockquote class="blockquote blockquote-primary mb-0">
+            {{ addr.address }}<br> Contact: {{ user.user_profile.no_hp }}
+            {% if addr.dusun %}
+                <div class="info info-hover">
+                    <div class="icon-icon-primary">
+                        <i class="fas fa-map-signs"></i>
+                    </div>
+                </div>
+                <div class="description">
+                    <h4 class="info-title">Dusun {{ addr.dusun }}</h4>
+                <p>tarif pengiriman dalam desa load duri ulu
+                    flat, namun jika alamat tidak ditemukan dalam dusun tsb, maka barang tidak akan dikirimkan</p>
+                </div>
+            {% else %}
+                <div class="info info-hover">
+                    <div class="icon-icon-primary">
+                        <i class="fas fa-directions"></i>
+                    </div>
+                </div>
+                <div class="description">
+                    <h4 class="info-title">Jarak {{ addr.distance }}</h4>
+                <p>tarif pengiriman ke luar desa dikenakan</p>
+                </div>
+            {% endif %}
+            <footer class="blockquote-footer">
+                Ongkir <cite title="Source Title">{{ addr.delivery_cost }}</cite>
+            </footer>
+        </blockquote>
+    </div>
+    <div class="card-footer p-2">
+        <button type="submit" class="btn btn-secondary">Rubah Alamat</button>
+        <button type="submit" class="btn btn-primary align-items-end">Gunakan Alamat
+        </button>
+    </div>
+</div>

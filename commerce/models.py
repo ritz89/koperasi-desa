@@ -8,9 +8,8 @@ from django.conf import settings
 
 class UserProfile(models.Model):
     fullname = models.CharField(max_length=100, default='')
-    address = models.TextField(default='')
-    address_latitude = models.FloatField(null=True)
-    address_longitude = models.FloatField(null=True)
+    no_hp = models.CharField(max_length=50)
+    profile_picture = models.ImageField(upload_to='user/profile_pictures')
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_profile')
 
 
@@ -61,14 +60,33 @@ class Dusun(models.Model):
     name = models.CharField(max_length=50)
     ongkir = models.IntegerField()
 
+    def __str__(self):
+        return self.name
+
 
 class Address(models.Model):
-    address = models.TextField(null=True)
-    latitude = models.FloatField(null=True)
-    longitude = models.FloatField(null=True)
-    distance = models.FloatField(default=0, null=True)
-    dusun = models.ForeignKey(Dusun, null=True, on_delete=models.CASCADE)
+    address = models.TextField()
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    dusun = models.ForeignKey(Dusun, null=True, on_delete=models.CASCADE, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    distance = models.IntegerField(default=0)
+
+    def get_distance(self):
+        if self.latitude and self.longitude:
+            headers = {
+                'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+            }
+            call = requests.get(
+                'https://api.openrouteservice.org/v2/directions/driving-car?api_key'
+                '=5b3ce3597851110001cf624860dd45501cb64305a4fb8c8d2b012616&start='
+                '117.060181,-0.588735&end={longitude},{latitude}'.format(longitude=self.longitude,
+                                                                         latitude=self.latitude),
+                headers=headers)
+            data = call.json()
+            return int(data['features'][0]['properties']['summary']['distance']) / 1000
+        else:
+            return -1
 
 
 class Delivery(models.Model):
@@ -86,22 +104,7 @@ class Delivery(models.Model):
     address = models.ForeignKey(Address, null=True, on_delete=models.SET_NULL)
     status = models.IntegerField(choices=DELIVERY_STATUS, default=1)
     self_pick = models.BooleanField(default=True)
-
-    def calculate_distance(self):
-        if self.address.latitude and self.address.longitude:
-            headers = {
-                'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-            }
-            call = requests.get(
-                'https://api.openrouteservice.org/v2/directions/driving-car?api_key'
-                '=5b3ce3597851110001cf624860dd45501cb64305a4fb8c8d2b012616&start='
-                '117.060181,-0.588735&end={longitude},{latitude}'.format(longitude=self.longitude,
-                                                                         latitude=self.latitude),
-                headers=headers)
-            data = call.json()
-            self.distance = int(data['features'][0]['properties']['summary']['distance']) / 1000
-        else:
-            self.distance = 0
+    distance = models.FloatField(default=0)
 
     @property
     def delivery_cost(self):
@@ -110,10 +113,12 @@ class Delivery(models.Model):
         elif self.address.dusun:
             return self.address.dusun.ongkir
         else:
-            if self.distance < 10:
+            if self.address.distance < 0:
+                return 99999999
+            elif self.address.distance < 10:
                 return 8000
             else:
-                return int((8000 + (self.distance - 10) * 1500) / 1000) * 1000
+                return int((8000 + (self.address.distance - 10) * 1500) / 1000) * 1000
 
 
 class Order(models.Model):

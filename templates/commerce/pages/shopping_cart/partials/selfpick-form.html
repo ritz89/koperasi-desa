@@ -1,0 +1,22 @@
+{% load humanize %}
+
+<div id="self_pick_form">
+    <h4>Belanjaan anda akan segera dipersiapkan.</h4>
+    <h5>silahkan ambil di koperasi desa, alamat:</h5>
+    <blockquote class="blockquote">
+        <p class="mb-0">Jl. Perjuangan I, Loa Duri Ulu, Kec. Loa Janan, Kabupaten Kutai Kartanegara,
+            Kalimantan Timur 75391</p>
+        <footer class="blockquote-footer">no pesanan
+            <cite title="Source Title">{{ order.id }}</cite>
+        </footer>
+    </blockquote>
+    <H6><b>Biaya Pengantaran</b> Rp. </H6> {{ order.delivery.delivery_cost }}<br>
+    <H6><b>Biaya Total</b> Rp. </H6> {{ order.total|floatformat:0|intcomma }}
+    <div>
+        <form action="{% url 'confirm-self-pick' order.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-round">Order</button>
+        </form>
+
+    </div>
+</div>

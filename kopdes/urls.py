@@ -16,7 +16,12 @@ urlpatterns = [
     path('dashboard/', test2, name='dashboard'),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('delivery-options/', delivery_options, name='delivery-form'),
+    path('confirm-self-pickup-order/<pk>/', konfirmasi_order_ambil_sendiri, name='confirm-self-pick'),
+    path('confirm-order/<pk>/', konfirmasi_order, name='confirm-order'),
+    path('htmx/address-form/', address_form_dusun, name='address-form-dusun'),
+    path('htmx/address-save/', simpan_alamat, name='simpan-alamat'),
+    path('htmx/address-detail/<pk>', address_detail, name='address-detail'),
+    path('htmx/show-address/', set_alamat, name='set-alamat')
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

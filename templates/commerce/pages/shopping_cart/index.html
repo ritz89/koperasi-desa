@@ -11,6 +11,9 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+
     <style>
         #mapid {
             height: 300px;
@@ -76,53 +79,60 @@
         </div>
     </div>
     <div class="contact-content">
-        <div class="container">
-            <div class="row">
-                <select id="delivery-method" class="selectpicker "
-                        data-style="select-with-transition btn-primary btn-round" onchange="delivery_changed()"
-                        title="Metode Pengiriman" data-size="7">
-                    <option value="1">Ambil Sendiri</option>
-                    <option value="2">Diantar Kurir</option>
-                </select>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div id="self_pick_form">
-                        <h4>Belanjaan anda akan segera dipersiapkan.</h4>
-                        <h5>silahkan ambil di koperasi desa, alamat:</h5>
-                        <blockquote class="blockquote">
-                            <p class="mb-0">Alamat di sini ....</p>
-                            <footer class="blockquote-footer">no pesanan
-                                <cite title="Source Title">{{ order.id }}</cite>
-                            </footer>
-                        </blockquote>
-                        <H6><b>Biaya Pengantaran</b> Rp. </H6> {{ order.delivery_cost|floatformat:0|intcomma }}<br>
-                        <H6><b>Biaya Total</b> Rp. </H6> {{ order.total|floatformat:0|intcomma }}
-
-                    </div>
-                    <div id="dusun_form">
-                        <form action="post">
-                            {{ csrf_token }}
-                            alamat: <textarea></textarea>
-                            dusun: <select class=""></select>
-                            <button type="submit" class="btn btn-primary btn-round">set delivery</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card" id="mapid">
-                    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div id="tambah-alamat" class="inline-group">
+                    <p>pilih alamat pengiriman atau tambahkan alamat baru</p>
+                    <select name="address-selector" id="address-selector"
+                            hx-get="{% url 'set-alamat' %}"
+                            hx-swap="innerHTML"
+                            hx-target="#dusun_form"
+                            title="pilih alamat pengiriman"
+                            class="selectpicker"
+                            data-style="select-with-transition btn-primary" style="display: block;"
+                    >
+                        <option value="0"> ambil sendiri</option>
+                        {% for addr in address %}
+                            <option value="{{ addr.id }}"> {{ addr.address }}-Rp.{{ addr.delivery_cost }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
+            <div class="col">
 
-            <div class="row align-items-end">
-                <div class="col align-items-end">
-                    <button class="btn btn-primary btn-round">Order</button>
-                </div>
             </div>
 
         </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="dusun_form">
+                </div>
+            </div>
+            <div class="col">
+                <div class="row p-2">
+                    <div class="card" id="mapid"></div>
+                </div>
+            </div>
+        </div>
+        <div id="frm-address" class="row">
+            <div class="card-body p2">
+                <form class="form-group"
+                      hx-target="#dusun_form" hx-swap="innerHTML"
+                      method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="btn btn-primary" type="submit" hx-post="{% url 'simpan-alamat' %}">
+                        tambah alamat
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row align-items-end">
+
     </div>
 {% endblock %}
 
@@ -130,10 +140,37 @@
     <script>
         let f1 = document.getElementById('self_pick_form')
         let f2 = document.getElementById('dusun_form')
+        let e1 = document.getElementById('tambah-alamat')
+        let e2 = document.getElementById('frm-address')
 
+        function reset_form() {
+            console.log('form reset')
+            document.getElementById('id_latitude').value = null
+            document.getElementById('id_longitude').value = null
+            document.getElementById('id_address').value = null
+            document.getElementById('id_dusun').value = null
+
+        }
+
+        document.body.addEventListener('htmx:beforeSwap', function(evt){
+            reset_form()
+        })
 
         let mymap = L.map('mapid').setView([-0.588735, 117.060181], 18)
         let koperasi_loc;
+
+        let locate_btn = L.easyButton('fa-dot-circle', function () {
+            navigator.geolocation.getCurrentPosition((position) => {
+                console.log("Latitude: " + position.coords.latitude +
+                    "<br>Longitude: " + position.coords.longitude)
+                tujuan.setLatLng([position.coords.latitude, position.coords.longitude]).addTo(mymap)
+                mymap.setView([position.coords.latitude, position.coords.longitude])
+                let latitude = document.getElementById('id_latitude')
+                let longitude = document.getElementById('id_longitude')
+                latitude.value = position.coords.latitude
+                longitude.value = position.coords.longitude
+            });
+        }).addTo(mymap);
 
         $(function () {
             L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -148,28 +185,39 @@
                 .bindPopup('Koperasi Desa.<br> Loa Duri Ulu.')
                 .openPopup();
             hide_all_form()
+
         });
+
 
         function delivery_changed(event) {
             let delivery_method = document.getElementById('delivery-method').value;
             if (delivery_method === '1') {
-                console.log('Ambil sendiri')
                 hide_all_form()
                 f1.style.display = "block"
+
             } else {
                 console.log('dalam desa')
-                hide_all_form()
                 f2.style.display = "block"
+                e1.style.display = "block"
             }
         }
 
         function hide_all_form() {
             f1.style.display = "none"
             f2.style.display = "none"
+            e1.style.display = "none"
+            e2.style.display = "none"
         }
-        let tujuan = L.marker([-0.588735, 117.060181]).addTo(mymap)
-        mymap.on('click', (e)=>{
+
+        let tujuanIcon = L.divIcon({className: 'fas fa-truck'});
+        let tujuan = L.marker([-0.588735, 117.060181], {icon: tujuanIcon}).addTo(mymap)
+        mymap.on('click', (e) => {
             tujuan.setLatLng(e.latlng)
+            let latitude = document.getElementById('id_latitude')
+            let longitude = document.getElementById('id_longitude')
+            console.log(e.latlng)
+            latitude.value = e.latlng.lat
+            longitude.value = e.latlng.lng
         })
 
 

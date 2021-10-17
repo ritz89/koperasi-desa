@@ -1,16 +1,20 @@
+import datetime
+from urllib.parse import urlencode
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Prefetch
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
+from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView
 
-from commerce.forms import DeliveryForm
-from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery
+from commerce.forms import DeliveryForm, AddressFormDusun
+from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery, Address
 
 
 def test(request):
@@ -84,11 +88,15 @@ class ShoppingCartView(LoginRequiredMixin, View):
     def get(self, request):
         order = Order.objects.filter(user=request.user, ordered=False). \
             prefetch_related('order_items').prefetch_related('delivery').first()
-        print(order)
-        delivery_form = DeliveryForm()
+        if order is None:
+            order = Order.objects.create(user=request.user, ordered=False,
+                                         delivery=Delivery.objects.create(self_pick=True))
+        address = Address.objects.filter(user=request.user)
+        address_form = AddressFormDusun()
         context = {
             'order': order,
-            'delivery_form': delivery_form
+            'address': address,
+            'form': address_form
         }
         return render(request, 'commerce/pages/shopping_cart/index.html', context)
 
@@ -103,6 +111,48 @@ class ShoppingCartView(LoginRequiredMixin, View):
             'order': order
         }
         return render(request, 'commerce/pages/shopping_cart/index.html', context)
+
+
+@login_required()
+def konfirmasi_order_ambil_sendiri(request, pk=None):
+    try:
+        order = Order.objects.get(pk=pk)
+        if order.total <= 0:
+            return redirect('home')
+        order.delivery.self_pick = True
+        order.delivery.save()
+        order.ordered_date = datetime.date.today()
+        order.ordered = True
+        order.save()
+    except Order.DoesNotExist:
+        return HttpResponse(status=404)
+    return redirect('home')
+
+
+@login_required()
+def konfirmasi_order(request, pk=None):
+    try:
+        order = Order.objects.get(pk=pk)
+        if order.total <= 0:
+            return redirect('home')
+        order.ordered_date = datetime.date.today()
+        order.ordered = True
+        order.save()
+    except Order.DoesNotExist:
+        return HttpResponse(status=404)
+    return redirect('home')
+
+
+@login_required()
+def address_form_dusun(request):
+    form = AddressFormDusun()
+    return render(request, 'commerce/pages/shopping_cart/partials/alamat-edit.html', {'form': form})
+
+
+@login_required()
+def address_detail(request, pk):
+    address = Address.objects.get(pk=pk)
+    return render(request, 'commerce/pages/shopping_cart/partials/alamat-show.html', {'address': address})
 
 
 @login_required()
@@ -145,12 +195,38 @@ class ItemPage(DetailView):
         return context
 
 
-def delivery_options(request):
-    if request.htmx:
-        if request.GET['radioPengiriman'] == 'self_pick':
-            return render(request, 'commerce/pages/shopping_cart/partials/self-pick-do.html')
-        elif request.GET['radioPengiriman'] == 'dusun':
-            return render(request, 'commerce/pages/shopping_cart/partials/dusun-do.html')
+@login_required()
+def simpan_alamat(request):
+    form = AddressFormDusun(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user
+            address.distance = address.get_distance()
+            address.save()
+            base_url = reverse('set-alamat')
+            qs = urlencode({'address-selector': address.id})
+            return redirect('{}?{}'.format(base_url, qs))
         else:
-            return render(request, 'commerce/pages/shopping_cart/partials/location-do.html')
-    return HttpResponse('<h1>Page was found</h1>')
+            return render(request, 'commerce/pages/shopping_cart/partials/alamat-edit.html',
+                          context={'form': form}
+                          )
+
+
+def set_alamat(request):
+    order = Order.objects.filter(user=request.user, ordered=False).first()
+    pk = request.GET.get('address-selector')
+    form = AddressFormDusun()
+    if int(pk) > 0:
+        address = Address.objects.get(pk=pk)
+        order.delivery.address = address
+        order.delivery.self_pick = False
+        order.delivery.distance = address.distance
+        order.delivery.save()
+        order.save()
+        return render(request, 'commerce/pages/shopping_cart/partials/sc-address-show.html',
+                      {'order': order, 'form': form})
+    order.delivery.self_pick = True
+    order.delivery.save()
+    order.save()
+    return render(request, 'commerce/pages/shopping_cart/partials/selfpick-form.html', {'order': order, 'form': form})
