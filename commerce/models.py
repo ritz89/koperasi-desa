@@ -107,7 +107,8 @@ class Delivery(models.Model):
         (2, 'Proses Pengantaran'),
         (3, 'Telah Diantarkan'),
         (4, 'Belum Diambil'),
-        (5, 'Telah diambil')
+        (5, 'Telah diambil'),
+        (6, 'Dibatalkan')
     ]
 
     koperasi_location = {

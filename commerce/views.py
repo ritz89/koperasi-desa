@@ -252,17 +252,21 @@ def hapus_order(request, pk):
     if order.user != request.user:
         return redirect('home')
 
-    if order.delivery.status == 2 or 3 or 5:
+    if order.delivery.status == 2 or 3 or 5 or 6:
         return redirect('history-belanja')
 
-    order.delete()
+    order.status = 6
+    order.save()
     return redirect('history-belanja')
 
 
 @login_required()
 def profile(request):
     profile_form = ProfileForm(data=request.POST or None, files=request.FILES or None)
-    current_profile = UserProfile.objects.get(user=request.user)
+    try:
+        current_profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        current_profile = UserProfile.objects.create(user=request.user)
     riwayat_transaksi = Order.objects.filter(user=request.user)
     total_order = Order.objects.filter(user=request.user).count()
     selesai = Order.objects.filter(user=request.user).filter(Q(delivery__status=3) or Q(delivery__status=5)).count()

@@ -27,6 +27,7 @@ urlpatterns = [
     path('user-profile/', profile, name='user-profile'),
     path('htmx/profile-form/', get_profile_form, name='get-profile-form'),
     path('htmx/profile-widget/', get_profile_widget, name='get-profile-widget'),
+    path('stores/', include('commerce.store_urls'))
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
