@@ -9,6 +9,12 @@ def user_cart_ctx(request):
             'carts_count': data.count(),
         }
     return {
-            'carts': None,
-            'carts_count': 0,
-        }
+        'carts': None,
+        'carts_count': 0,
+    }
+
+
+def transparent_navbar_ctx(request):
+    return {
+        'transparent_navbar': True
+    }

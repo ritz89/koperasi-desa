@@ -1,0 +1,20 @@
+{% load static %}
+<div>
+    <img
+            src="{% if user.user_profile.profile_picture %}
+            {{ user.user_profile.profile_picture.url }}
+            {% else %}{% static "img/default-avatar.png" %}
+            {% endif %}" alt="{{ user.user_profile.fullname }}"
+            height="100" width="100" class="rounded-circle">
+    <h5 class="mt-2 mb-0">{{ user.user_profile.fullname }}</h5>
+    <span>{{ user.user_profile.no_hp }}</span>
+    <div class="text-center">
+        <button class="btn-secondary"
+                type="submit"
+                hx-post="{% url 'get-profile-form' %}"
+                hx-target="#profil-form"
+                hx-swap="innerHTML"
+        >ubah profile
+        </button>
+    </div>
+</div>

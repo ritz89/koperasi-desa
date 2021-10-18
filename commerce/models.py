@@ -90,11 +90,13 @@ class Address(models.Model):
 
 
 class Delivery(models.Model):
-    DELIVERY_STATUS = (
+    DELIVERY_STATUS = [
         (1, 'Dipersiapkan'),
         (2, 'Proses Pengantaran'),
-        (3, 'Telah Diantarkan')
-    )
+        (3, 'Telah Diantarkan'),
+        (4, 'Belum Diambil'),
+        (5, 'Telah diambil')
+    ]
 
     koperasi_location = {
         'latitude': '-0.588735',
@@ -105,6 +107,9 @@ class Delivery(models.Model):
     status = models.IntegerField(choices=DELIVERY_STATUS, default=1)
     self_pick = models.BooleanField(default=True)
     distance = models.FloatField(default=0)
+
+    def status_verbose(self):
+        return dict(Delivery.DELIVERY_STATUS)[self.status]
 
     @property
     def delivery_cost(self):
@@ -132,7 +137,7 @@ class Order(models.Model):
     def subtotal(self):
         subtotal = 0
         for item in self.order_items.all():
-            subtotal += item.item.price * item.qty
+            subtotal += item.price * item.qty
         return subtotal
 
     @property
@@ -147,10 +152,11 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='order_item')
     qty = models.FloatField()
+    price = models.IntegerField(default=0)
 
     @property
     def subtotal(self):
-        return self.item.price * self.qty
+        return self.price * self.qty
 
     def __str__(self):
         return self.item.title

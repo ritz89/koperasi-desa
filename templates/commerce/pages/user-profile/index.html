@@ -1,0 +1,55 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}Shopping History{% endblock %}
+{% block stylesheet %}
+
+{% endblock %}
+{% block content %}
+    <div class="section">
+        <div class="container mt-5">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-7">
+                    <div id="profil-form" class="text-center">
+                        <img src="{% if user.user_profile.profile_picture %}
+            {{ user.user_profile.profile_picture.url }}
+            {% else %}{% static "img/default-avatar.png" %}
+            {% endif %}" alt="{{ user.user_profile.fullname }}" alt="{{ user.user_profile.fullname }}"
+                             height="100" width="100" class="rounded-circle">
+                        <h5 class="mt-2 mb-0">{{ user.user_profile.fullname }}</h5>
+                        <span>{{ user.user_profile.no_hp }}</span>
+                        <div class="text-center">
+                            <button class="btn-secondary"
+                                    type="submit"
+                                    hx-post="{% url 'get-profile-form' %}"
+                                    hx-target="#profil-form"
+                                    hx-swap="innerHTML"
+                            >ubah profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-4 mt-1 text-center align-content-center">
+                        <div class="row align-content-center">
+                            <div class="col bg-secondary">Jumlah Pesanan Selesai</div>
+                            <div class="col bg-light">Total Pesanan</div>
+                        </div>
+                        <div class="row align-content-center">
+                            <div class="col bg-secondary">4</div>
+                            <div class="col bg-light">5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+
+    </script>
+{% endblock %}

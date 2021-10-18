@@ -15,13 +15,15 @@ class ItemAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 class OrderItemInlineAdmin(admin.TabularInline):
     model = OrderItem
 
+
 class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInlineAdmin]
 
-
+admin.site.register(UserProfile)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Address)
 admin.site.register(Order, OrderAdmin)
+admin.site.register(Delivery)
 admin.site.register(ItemCategory)
 admin.site.register(MediaLibrary)
 admin.site.register(Banner)

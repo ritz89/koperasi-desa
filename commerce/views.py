@@ -13,8 +13,8 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView
 
-from commerce.forms import DeliveryForm, AddressFormDusun
-from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery, Address
+from commerce.forms import DeliveryForm, AddressFormDusun, ProfileForm
+from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery, Address, UserProfile
 
 
 def test(request):
@@ -22,7 +22,7 @@ def test(request):
 
 
 def test2(request):
-    return render(request, 'layouts/base-dashboard.html')
+    return render(request, 'commerce/pages/shopping_history/index.html', {'transparent_navbar': False})
 
 
 class HomePageView(View):
@@ -66,7 +66,7 @@ def add_order_item(request, item_id):
     try:
         item_in_cart = user_order.order_items.get(item=item)
     except OrderItem.DoesNotExist:
-        item_in_cart = OrderItem.objects.create(order=user_order, item=item, qty=0)
+        item_in_cart = OrderItem.objects.create(order=user_order, item=item, qty=0, price=item.price)
     if int(request.POST.get('qty')) > 0:
         item_in_cart.qty = request.POST.get('qty')
         item_in_cart.save()
@@ -120,13 +120,14 @@ def konfirmasi_order_ambil_sendiri(request, pk=None):
         if order.total <= 0:
             return redirect('home')
         order.delivery.self_pick = True
+        order.delivery.status = 4
         order.delivery.save()
         order.ordered_date = datetime.date.today()
         order.ordered = True
         order.save()
     except Order.DoesNotExist:
         return HttpResponse(status=404)
-    return redirect('home')
+    return redirect('history-belanja')
 
 
 @login_required()
@@ -140,7 +141,7 @@ def konfirmasi_order(request, pk=None):
         order.save()
     except Order.DoesNotExist:
         return HttpResponse(status=404)
-    return redirect('home')
+    return redirect('history-belanja')
 
 
 @login_required()
@@ -213,6 +214,7 @@ def simpan_alamat(request):
                           )
 
 
+@login_required()
 def set_alamat(request):
     order = Order.objects.filter(user=request.user, ordered=False).first()
     pk = request.GET.get('address-selector')
@@ -222,6 +224,7 @@ def set_alamat(request):
         order.delivery.address = address
         order.delivery.self_pick = False
         order.delivery.distance = address.distance
+        order.delivery.status = 1
         order.delivery.save()
         order.save()
         return render(request, 'commerce/pages/shopping_cart/partials/sc-address-show.html',
@@ -230,3 +233,69 @@ def set_alamat(request):
     order.delivery.save()
     order.save()
     return render(request, 'commerce/pages/shopping_cart/partials/selfpick-form.html', {'order': order, 'form': form})
+
+
+@login_required()
+def histori_belanja(request):
+    order = Order.objects.filter(user=request.user, ordered=True).all()
+    context = {
+        'orders': order,
+        'transparent_navbar': False
+    }
+    return render(request, 'commerce/pages/shopping_history/index.html', context)
+
+
+@login_required()
+def hapus_order(request, pk):
+    order = Order.objects.get(pk=pk)
+
+    if order.user != request.user:
+        return redirect('home')
+
+    order.delete()
+    return redirect('history-belanja')
+
+
+@login_required()
+def profile(request):
+    profile_form = ProfileForm(data=request.POST or None, files=request.FILES or None)
+    current_profile = UserProfile.objects.get(user=request.user)
+    riwayat_transaksi = Order.objects.filter(user=request.user)
+    if request.method == 'POST':
+        if profile_form.is_valid():
+            profil = profile_form.instance
+            if not profil.profile_picture:
+                profil.profile_picture = current_profile.profile_picture
+            profil.id = current_profile.id
+            profil.user = request.user
+            profil.save()
+            return redirect('get-profile-widget')
+        else:
+            return render(request, 'commerce/pages/user-profile/partials/profile-form.html',
+                          {'profile_form': profile_form})
+    context = {
+        'profile_form': profile_form,
+        'transparent_navbar': False,
+        'riwayat_transaksi': riwayat_transaksi
+    }
+    return render(request, 'commerce/pages/user-profile/index.html', context)
+
+
+def get_profile_form(request):
+    profil, created = UserProfile.objects.get_or_create(user=request.user)
+    profile_form = ProfileForm(instance=profil)
+    context = {
+        'profile_form': profile_form,
+        'transparent_navbar': False
+    }
+    return render(request, 'commerce/pages/user-profile/partials/profile-form.html', context)
+
+
+def get_profile_widget(request):
+    profil, created = UserProfile.objects.get_or_create(user=request.user)
+    profile_form = ProfileForm(instance=profil)
+    context = {
+        'profile_form': profile_form,
+        'transparent_navbar': False
+    }
+    return render(request, 'commerce/pages/user-profile/partials/profile-widget.html', context)

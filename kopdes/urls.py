@@ -21,7 +21,12 @@ urlpatterns = [
     path('htmx/address-form/', address_form_dusun, name='address-form-dusun'),
     path('htmx/address-save/', simpan_alamat, name='simpan-alamat'),
     path('htmx/address-detail/<pk>', address_detail, name='address-detail'),
-    path('htmx/show-address/', set_alamat, name='set-alamat')
+    path('htmx/show-address/', set_alamat, name='set-alamat'),
+    path('histori-belanja/', histori_belanja, name='history-belanja'),
+    path('hapus-order/<pk>/', hapus_order, name='hapus-order'),
+    path('user-profile/', profile, name='user-profile'),
+    path('htmx/profile-form/', get_profile_form, name='get-profile-form'),
+    path('htmx/profile-widget/', get_profile_widget, name='get-profile-widget'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

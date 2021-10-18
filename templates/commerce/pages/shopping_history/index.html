@@ -1,0 +1,85 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}Shopping History{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <h4>riwayat berbelanja</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="text-center">#</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter }}</td>
+                        <td>{{ order.ordered_date }}</td>
+                        <td>{{ order.delivery.status_verbose }}</td>
+                        <td class="td-actions text-right">
+                            <form method="POST" action="{% url 'hapus-order' order.id %}">
+                                {% csrf_token %}
+                                <button type="submit" rel="tooltip" class="btn btn-danger"
+                                        hx-confirm="Anda yakin akan menghapus order?"
+                                >
+                                    <i class="now-ui-icons ui-1_simple-remove"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4 p-2">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>nama item</th>
+                                    <th>jumlah</th>
+                                    <th>harga</th>
+                                    <th>subtotal</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in order.order_items.all %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ item.item.title }}</td>
+                                        <td>{{ item.qty }}</td>
+                                        <td>{{ item.price }}</td>
+                                        <td>{{ item.subtotal }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td class="text-right" colspan="4">Delivery</td>
+                                    <td class="text-right">{{ order.delivery.delivery_cost }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right" colspan="4">Total</td>
+                                    <td class="text-right">{{ order.total }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+
+    </script>
+{% endblock %}
