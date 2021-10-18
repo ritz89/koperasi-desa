@@ -37,8 +37,63 @@
                             <div class="col bg-light">Total Pesanan</div>
                         </div>
                         <div class="row align-content-center">
-                            <div class="col bg-secondary">4</div>
-                            <div class="col bg-light">5</div>
+                            <div class="col bg-secondary">{{ selesai }}</div>
+                            <div class="col bg-light">{{ total_order }}</div>
+                        </div>
+                        <div class="row">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for order in riwayat_transaksi %}
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+                                        <td>{{ order.ordered_date }}</td>
+                                        <td>{{ order.delivery.status_verbose }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4 p-2">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th class="text-center">#</th>
+                                                    <th>nama item</th>
+                                                    <th>jumlah</th>
+                                                    <th>harga</th>
+                                                    <th>subtotal</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for item in order.order_items.all %}
+                                                    <tr>
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>{{ item.item.title }}</td>
+                                                        <td>{{ item.qty|floatformat:0|intcomma }}</td>
+                                                        <td>{{ item.price|floatformat:0|intcomma }}</td>
+                                                        <td>{{ item.subtotal|floatformat:0|intcomma }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                <tr>
+                                                    <td class="text-right" colspan="4">Biaya Pengiriman</td>
+                                                    <td class="text-right">{{ order.delivery.delivery_cost|floatformat:0|intcomma }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-right" colspan="4">Total (Rp) </td>
+                                                    <td class="text-right"><h6>{{ order.total|floatformat:0|intcomma }}</h6></td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

@@ -25,14 +25,16 @@
                         <td>{{ order.ordered_date }}</td>
                         <td>{{ order.delivery.status_verbose }}</td>
                         <td class="td-actions text-right">
-                            <form method="POST" action="{% url 'hapus-order' order.id %}">
-                                {% csrf_token %}
-                                <button type="submit" rel="tooltip" class="btn btn-danger"
-                                        hx-confirm="Anda yakin akan menghapus order?"
-                                >
-                                    <i class="now-ui-icons ui-1_simple-remove"></i>
-                                </button>
-                            </form>
+                            {% if order.delivery.status == 1 or order.delivery.status == 4 %}
+                                <form method="POST" action="{% url 'hapus-order' order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" rel="tooltip" class="btn btn-danger"
+                                            hx-confirm="Anda yakin akan menghapus order?"
+                                    >
+                                        <i class="now-ui-icons ui-1_simple-remove"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>

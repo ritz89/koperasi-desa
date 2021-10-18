@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
@@ -252,6 +252,9 @@ def hapus_order(request, pk):
     if order.user != request.user:
         return redirect('home')
 
+    if order.delivery.status == 2 or 3 or 5:
+        return redirect('history-belanja')
+
     order.delete()
     return redirect('history-belanja')
 
@@ -261,6 +264,8 @@ def profile(request):
     profile_form = ProfileForm(data=request.POST or None, files=request.FILES or None)
     current_profile = UserProfile.objects.get(user=request.user)
     riwayat_transaksi = Order.objects.filter(user=request.user)
+    total_order = Order.objects.filter(user=request.user).count()
+    selesai = Order.objects.filter(user=request.user).filter(Q(delivery__status=3) or Q(delivery__status=5)).count()
     if request.method == 'POST':
         if profile_form.is_valid():
             profil = profile_form.instance
@@ -276,7 +281,9 @@ def profile(request):
     context = {
         'profile_form': profile_form,
         'transparent_navbar': False,
-        'riwayat_transaksi': riwayat_transaksi
+        'riwayat_transaksi': riwayat_transaksi,
+        'total_order': total_order,
+        'selesai': selesai,
     }
     return render(request, 'commerce/pages/user-profile/index.html', context)
 

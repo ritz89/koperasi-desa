@@ -1,15 +1,27 @@
+import os
+
 import requests
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 
 # Create your models here.
 from django.conf import settings
 
 
+class OverwriteStorage(FileSystemStorage):
+
+    def get_available_name(self, name, max_length=None):
+        # If the filename already exists, remove it as if it was a true file system
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+
 class UserProfile(models.Model):
     fullname = models.CharField(max_length=100, default='')
     no_hp = models.CharField(max_length=50)
-    profile_picture = models.ImageField(upload_to='user/profile_pictures')
+    profile_picture = models.ImageField(upload_to='user/profile_pictures', storage=OverwriteStorage())
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_profile')
 
 
