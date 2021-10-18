@@ -33,7 +33,7 @@ class ItemCategory(models.Model):
 
 
 class MediaLibrary(models.Model):
-    image = models.ImageField(upload_to='app_medias')
+    image = models.ImageField(upload_to='app_medias', storage=OverwriteStorage())
     label = models.CharField(max_length=50)
 
     def __str__(self):
@@ -46,7 +46,7 @@ class Item(models.Model):
     description = models.TextField()
     price = models.IntegerField()
     stock = models.IntegerField()
-    thumbnail = models.ImageField(upload_to='app_medias/thumbnails', null=True)
+    thumbnail = models.ImageField(upload_to='app_medias/thumbnails', null=True, storage=OverwriteStorage())
     media = models.ManyToManyField(MediaLibrary)
 
     deleted = models.BooleanField(default=False)
