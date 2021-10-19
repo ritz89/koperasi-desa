@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'hijack',
     'compat',
     'crispy_forms',
+    'widget_tweaks',
 
     'commerce',
 ]

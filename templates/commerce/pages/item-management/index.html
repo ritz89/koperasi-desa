@@ -1,0 +1,231 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}Manajemen Inventori{% endblock %}
+{% block stylesheet %}
+    <style>
+        tr.noBorder td {
+            border: 0;
+        }
+    </style>
+{% endblock %}
+{% block header %}
+    <div class="page-header">
+        <div class="page-header-image" data-parallax="true"
+             style="background-image: url('https://cdn.pixabay.com/photo/2016/01/19/17/09/suits-1149561_960_720.jpg');">
+        </div>
+        <div class="content-center text-center">
+            <div class="row">
+                <div class="col-md-8 ml-auto mr-auto">
+                    <h1 class="title">Manajemen Inventori</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="section">
+        <a href="{% url 'tambah-item_inventory' %}" class="btn btn-primary">Masukkan Barang Baru</a>
+        <table class="table m-5">
+            <thead>
+            <tr>
+                <td colspan="2">#</td>
+                <td>Nama</td>
+                <td>Deskripsi</td>
+                <td class="text-right">Harga</td>
+                <td class="text-right">Stok</td>
+                <td class="text-center">action</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><img src="
+
+                            {% if item.thumbnail %}{{ item.thumbnail.url }}{% else %}{% static '/img/no-image.png' %}{% endif %}"
+                             alt="{{ item.title }}" height="160" width="160"></td>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.description }}</td>
+                    <td class="text-right">{{ item.price|floatformat:0|intcomma }}</td>
+                    <td class="text-right">{{ item.stock|floatformat:0|intcomma }}</td>
+                    <td class="text-center">
+                        <button class="btn btn-primary" data-toggle="collapse" data-target="#item-detail-{{ item.id }}"
+                                aria-expanded="false" aria-controls="collapseItem"
+                        >
+                            <i class="fas fa-angle-double-down"></i> details
+                        </button>
+                        <a href="{% url 'edit_item_inventory' item.id %}" class="btn btn-primary"
+                        >
+                            <i class="fas fa-edit"></i> Rubah
+                        </a>
+                    </td>
+                </tr>
+                <tr class="noBorder collapse" id="item-detail-{{ item.id }}">
+                    <td colspan="8">
+                        <div class="blockquote">
+                            <form action="post">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="nama" class="col-sm-2 col-form-label">Nama</label>
+                                                    <input type="text" readonly class="form-control"
+                                                           id="nama" name="nama" value="{{ item.title }}">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="barcode" class="col-sm-2 col-form-label">Barcode</label>
+                                                    <input type="text" readonly class="form-control"
+                                                           id="barcode" name="barcode" value="{{ item.barcode }}">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="description">Deskripsi</label>
+                                            <textarea class="form-control" readonly id="description" name="description"
+                                                      rows="4">{{ item.description }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="categoriSelector">Kategori</label>
+                                            <select multiple readonly class="form-control" id="categoriSelector"
+                                                    name="category">
+                                                {% for cat in item.category.all %}
+                                                    <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="stock">Stok</label>
+                                            <input type="number" readonly class="form-control" id="stock" name="stock"
+                                                   aria-describedby="stockHelper" placeholder="Jumlah Stok" value="{{ item.stock }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="hold_stock">Stok ditahan/dipesan</label>
+                                            <input type="number" readonly class="form-control" id="hold_stock"
+                                                   placeholder="Stok ditahan/dipesan" value="{{ item.hold_stock }}">                                    </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="productCarousel" class="carousel slide" data-ride="carousel"
+                                             data-interval="8000">
+
+                                            <ol class="carousel-indicators">
+                                                {% for img in item.media.all %}
+
+                                                    <li data-target="#productCarousel"
+                                                        data-slide-to="{{ forloop.counter0 }}"
+                                                        class=""></li>
+
+                                                {% endfor %}
+                                            </ol>
+                                            <div class="carousel-inner" role="listbox">
+                                                {% for img in item.media.all %}
+                                                    {% if forloop.counter0 == 0 %}
+                                                        <div class="carousel-item active">
+                                                    {% else %}
+                                                        <div class="carousel-item">
+                                                    {% endif %}
+                                                <img class="d-block img-raised" height="200px" src="{{ img.image.url }}"
+                                                     alt="{{ img.image.label }}">
+                                                </div>
+                                                {% endfor %}
+                                                </div>
+                                                <a class="carousel-control-prev" href="#productCarousel" role="button"
+                                                   data-slide="prev">
+                                                    <button type="button"
+                                                            class="btn btn-primary btn-icon btn-round btn-sm"
+                                                            name="button">
+                                                        <i class="now-ui-icons arrows-1_minimal-left"></i>
+                                                    </button>
+                                                </a>
+                                                <a class="carousel-control-next" href="#productCarousel" role="button"
+                                                   data-slide="next">
+                                                    <button type="button"
+                                                            class="btn btn-primary btn-icon btn-round btn-sm"
+                                                            name="button">
+                                                        <i class="now-ui-icons arrows-1_minimal-right"></i>
+                                                    </button>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <nav aria-label="Inventori Manajemen Pagination">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=
+
+
+
+
+
+
+
+                                {{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="#" disabled>Previous</a></li>
+                {% endif %}
+                {% for i in page_obj.paginator.page_range %}
+                    {% if i <= page_obj.number|add:5 and i >= page_obj.number|add:-5 %}
+                        {% if page_obj.number == i %}
+                            <li class="page-item"><a class="page-link" href="#" disabled>{{ i }}</a></li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                    {{ i }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page=
+
+
+
+
+
+
+
+                                   {{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            Next
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="#" disabled>Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+{% endblock %}

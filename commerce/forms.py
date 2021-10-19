@@ -1,6 +1,7 @@
 from django import forms
 
-from commerce.models import Delivery, Address, UserProfile
+from commerce.models import Delivery, Address, UserProfile, Item, MediaLibrary
+from django.forms.models import inlineformset_factory
 
 
 class DeliveryForm(forms.ModelForm):
@@ -65,4 +66,17 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['fullname', 'no_hp', 'profile_picture']
+
+
+class ItemForm(forms.ModelForm):
+
+    class Meta:
+        model = Item
+        fields = ['title', 'description', 'barcode', 'category', 'thumbnail', 'stock', 'hold_stock', 'price']
+
+
+class MediaLibraryForm(forms.ModelForm):
+    class Meta:
+        model = MediaLibrary
+        fields = ['image']
 

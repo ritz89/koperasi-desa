@@ -33,23 +33,15 @@ class ItemCategory(models.Model):
         return self.category_name
 
 
-class MediaLibrary(models.Model):
-    image = models.ImageField(upload_to='app_medias', storage=OverwriteStorage())
-    label = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.label
-
-
 class Item(models.Model):
     title = models.CharField(max_length=100)
-    category = models.ManyToManyField(ItemCategory)
+    barcode = models.CharField(max_length=100, blank=True, null=True)
+    category = models.ManyToManyField(ItemCategory, related_name='category')
     description = models.TextField()
     price = models.IntegerField()
     stock = models.IntegerField()
-    thumbnail = models.ImageField(upload_to='app_medias/thumbnails', null=True, storage=OverwriteStorage())
+    thumbnail = models.ImageField(upload_to='app_medias/thumbnails', null=True, storage=OverwriteStorage(), blank=True)
     hold_stock = models.IntegerField(default=0)
-    media = models.ManyToManyField(MediaLibrary)
 
     deleted = models.BooleanField(default=False)
 
@@ -67,6 +59,14 @@ class Item(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class MediaLibrary(models.Model):
+    image = models.ImageField(upload_to='app_medias', storage=OverwriteStorage(), null=True, blank=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='media', null=True)
+
+    def __str__(self):
+        return self.item.title
 
 
 class Dusun(models.Model):

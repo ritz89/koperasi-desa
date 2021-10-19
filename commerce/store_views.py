@@ -1,9 +1,12 @@
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.forms import modelformset_factory
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
 
-from commerce.models import Order
+from commerce.forms import ItemForm, MediaLibraryForm
+from commerce.models import Order, Item, ItemCategory, MediaLibrary
 
 
 # Create your views here.
@@ -57,3 +60,97 @@ def filter_order_mgm(request):
         'status_filter': status_filter
     }
     return render(request, 'commerce/pages/order-management/index.html', context)
+
+
+@login_required
+def inventory_management(request):
+    items = Item.objects.all().order_by('id')
+    item_category = ItemCategory.objects.all()
+
+    paginator = Paginator(items, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        'item_category': item_category
+    }
+    return render(request, 'commerce/pages/item-management/index.html', context)
+
+
+def edit_item_inventory(request, pk):
+    item = Item.objects.get(pk=pk)
+    form = ItemForm(instance=item)
+    MediaFormSet = modelformset_factory(MediaLibrary, MediaLibraryForm, extra=3, can_delete=True, can_delete_extra=True)
+
+    if request.method == 'POST':
+        form = ItemForm(data=request.POST or None, files=request.FILES or None)
+        formset = MediaFormSet(request.POST or None, files=request.FILES or None,
+                               queryset=MediaLibrary.objects.none())
+        if form.is_valid() and formset.is_valid():
+            item_data = form.instance
+            if not item_data.thumbnail:
+                item_data.thumbnail = item.thumbnail
+            item_data.id = item.id
+            for cat in request.POST.getlist('category'):
+                item_data.category.add(cat)
+            item_data.save()
+            for form in formset.cleaned_data:
+                if form:
+                    image = form['image']
+                    if image:
+                        media = MediaLibrary(item=item_data, image=image)
+                        media.save()
+            context = {
+                'form': form,
+                'item': item,
+                'formset': formset,
+                'mode': 'Rubah',
+                'transparent_navbar': False
+            }
+            return redirect('item-page', item.id)
+        else:
+            return HttpResponseRedirect("/")
+    else:
+        context = {
+            'form': form,
+            'item': item,
+            'formset': MediaFormSet(queryset=MediaLibrary.objects.filter(item=item).all()),
+            'mode': 'Rubah',
+            'transparent_navbar': False
+        }
+        return render(request, 'commerce/pages/item-management/add_edit_item.html', context)
+
+
+def tambah_item_inventory(request):
+
+    form = ItemForm()
+    MediaFormSet = modelformset_factory(MediaLibrary, MediaLibraryForm, extra=3, can_delete=True, can_delete_extra=True)
+
+    if request.method == 'POST':
+        form = ItemForm(data=request.POST or None, files=request.FILES or None)
+        formset = MediaFormSet(request.POST or None, files=request.FILES or None,
+                               queryset=MediaLibrary.objects.none())
+        if form.is_valid() and formset.is_valid():
+            item_data = form.instance
+            item_data.save()
+            for cat in request.POST.getlist('category'):
+                item_data.category.add(cat)
+            for form in formset.cleaned_data:
+                if form:
+                    image = form['image']
+                    if image:
+                        media = MediaLibrary(item=item_data, image=image)
+                        media.save()
+            return redirect('item-page', item_data.id)
+        else:
+            return HttpResponseRedirect("/")
+    else:
+        context = {
+            'form': form,
+            'item': Item(),
+            'formset': MediaFormSet(queryset=MediaLibrary.objects.none()),
+            'mode': 'Tambah',
+            'transparent_navbar': False
+        }
+        return render(request, 'commerce/pages/item-management/add_edit_item.html', context)
+

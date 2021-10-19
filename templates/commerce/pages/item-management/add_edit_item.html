@@ -1,0 +1,154 @@
+{% extends "layouts/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+{% load widget_tweaks %}
+
+
+{% block title %}Manajemen Inventori{% endblock %}
+{% block stylesheet %}
+    <style>
+        tr.noBorder td {
+            border: 0;
+        }
+    </style>
+{% endblock %}
+{% block header %}
+    <div class="page-header">
+        <div class="page-header-image" data-parallax="true"
+             style="background-image: url('https://cdn.pixabay.com/photo/2019/09/16/11/59/scanning-4480804_960_720.jpg');">
+        </div>
+        <div class="content-center text-center">
+            <div class="row">
+                <div class="col-md-8 ml-auto mr-auto">
+                    <h1 class="title">{{ mode }} Data Inventori</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="section">
+            <form action="." method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.title.errors }}
+                            <label for="{{ form.title.id_for_label }}">Nama</label>
+                            {{ form.title|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.barcode.errors }}
+                            <label for="{{ form.barcode.id_for_label }}">Barcode</label>
+                            {{ form.barcode|add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.description.errors }}
+                            <label for="{{ form.description.id_for_label }}">Deskripsi</label>
+                            {{ form.description|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.category.errors }}
+                            <label for="{{ form.category.id_for_label }}">Kategori</label>
+                            {{ form.category|add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.stock.errors }}
+                            <label for="{{ form.description.id_for_label }}">Stok Saat Ini</label>
+                            {{ form.stock|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.stock.errors }}
+                            <label for="{{ form.hold_stock.id_for_label }}">Stok yang telah dipesan</label>
+                            {{ form.hold_stock|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.price.errors }}
+                            <label for="{{ form.price.id_for_label }}">Harga Berlaku</label>
+                            {{ form.price|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.thumbnail.errors }}
+                            <label for="{{ form.thumbnail.id_for_label }}">Thumbnail</label>
+                            {{ form.thumbnail|add_class:"form-control-file"|append_attr:"onchange:readURL(this)" }}
+                            {% if item.thumbnail %}
+                                <img id="blah" src="{{ item.thumbnail.url }}" height="200" width="200" alt="thumbnail"/>
+                            {% else %}
+                                <img id="blah" src="#" height="200" width="200" alt="thumbnail"/>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                    <div class="col">
+                        {{ formset.management_form|crispy }}
+
+    {% for form in formset.forms %}
+            <tr class="{% cycle 'row1' 'row2' %} formset_row-{{ formset.prefix }}">
+                {% for field in form.visible_fields %}
+                <td>
+                    {# Include the hidden fields in the form #}
+                    {% if forloop.first %}
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    {% endif %}
+                    {{ field.errors.as_ul }}
+                    {{ field|as_crispy_field }}
+                </td>
+                {% endfor %}
+            </tr>
+    {% endfor %}
+
+                    </div>
+                </div>
+                <button class="btn btn-primary" type="submit">{{ mode }}</button>
+                <small class="text-danger">{{ form.non_field_errors }}</small>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+{% block scripts %}
+    <script>function loadGambar(input) {
+        if (input.files) {
+            let fileList = input.files
+            for (let i = 0; i < fileList.length; i++) {
+                let t = window.URL || window.webkitURL;
+                let objectUrl = t.createObjectURL(fileList[i]);
+                $('#imgs').append('<img src="' + objectUrl + '" height="200" width="200"/>');
+            }
+
+        }
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#blah')
+                    .attr('src', e.target.result)
+                    .width(150)
+                    .height(200);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    </script>
+{% endblock %}
