@@ -101,7 +101,7 @@ def add_order_item(request, item_id):
         item_in_cart.save()
     else:
         if item_in_cart.qty > 0:
-            item_in_cart.item.qty += item_in_cart.qty
+            item_in_cart.item.stock += item_in_cart.qty
             item_in_cart.item.hold_stock -= item_in_cart.qty
             item_in_cart.item.save()
         item_in_cart.delete()

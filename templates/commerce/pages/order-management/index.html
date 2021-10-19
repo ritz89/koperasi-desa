@@ -149,10 +149,8 @@
             <nav aria-label="Order Manajemen Pagination">
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?page=
-
-
-                                {{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
                         </li>
                     {% else %}
                         <li class="page-item"><a class="page-link" href="#" disabled>Previous</a></li>
@@ -162,17 +160,21 @@
                             {% if page_obj.number == i %}
                                 <li class="page-item"><a class="page-link" href="#" disabled>{{ i }}</a></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="?page=
-                                        {{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ i }}</a>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                        {{ i }}
+                                    </a>
                                 </li>
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                     {% if page_obj.has_next %}
-                        <li class="page-item"><a class="page-link" href="?page=
-
-
-                                {{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                Next
+                            </a>
                         </li>
                     {% else %}
                         <li class="page-item"><a class="page-link" href="#" disabled>Next</a></li>
