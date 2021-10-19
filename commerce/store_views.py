@@ -1,5 +1,4 @@
 import datetime
-
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render
@@ -17,6 +16,8 @@ def manage_orders(request):
             order_id = request.POST.get('order_id')
             status = request.POST.get('status')
             order = Order.objects.get(pk=order_id)
+            if order.delivery.status == 3 or 5 or 6:
+                return filter_order_mgm(request)
             order.delivery.status = status
             order.delivery.save()
             if status == 3 or 5 or 6:
@@ -36,15 +37,23 @@ def manage_orders(request):
                             item.item.hold_stock = 0
                             item.item.save()
 
-    orders = Order.objects.all().filter(ordered=True).order_by('id')
+    return filter_order_mgm(request)
 
+
+def filter_order_mgm(request):
+    status_filter = ''
     if 'status' in request.GET:
-        orders.filter(status=request.GET.get['status'])
-    paginator = Paginator(orders, 10)
+        status_filter = request.GET.get('status')
+        orders = Order.objects.all().filter(delivery__status=status_filter, ordered=True)
+    else:
+        orders = Order.objects.all().filter(ordered=True)
+    orders.order_by('id')
+    paginator = Paginator(orders, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
         'transparent_navbar': False,
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'status_filter': status_filter
     }
     return render(request, 'commerce/pages/order-management/index.html', context)

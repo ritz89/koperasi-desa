@@ -18,6 +18,28 @@
                 <h3 class="mb-0">Manajemen Pesanan Masuk</h3>
             </blockquote>
         </div>
+        <div class="text-right">
+            <div class="row text-right">
+                <div class="col-sm-2">
+                    <!-- Example single danger button -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            Pilih Status
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}">Semua</a>
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}?status=1">Dipersiapkan/Baru</a>
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}?status=2">Proses Pengantaran</a>
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}?status=3">Telah Diantarkan</a>
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}?status=4">Belum Diambil</a>
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}?status=5">Telah diambil</a>
+                            <a class="dropdown-item" href="{% url 'manage_orders' %}?status=6">Dibatalkan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="section">
             <table class="table">
                 <thead>
@@ -41,6 +63,7 @@
                         <td class="td-actions text-right">
                             <button type="button" rel="tooltip" class="btn btn-info"
                                     data-toggle="modal" data-target="#modal-{{ order.id }}"
+                                    {% if order.finish_date %}disabled{% endif %}
                             >
                                 <i class="now-ui-icons users_single-02"></i> proses
                             </button>
@@ -126,7 +149,10 @@
             <nav aria-label="Order Manajemen Pagination">
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        <li class="page-item"><a class="page-link" href="?page=
+
+
+                                {{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
                         </li>
                     {% else %}
                         <li class="page-item"><a class="page-link" href="#" disabled>Previous</a></li>
@@ -136,12 +162,17 @@
                             {% if page_obj.number == i %}
                                 <li class="page-item"><a class="page-link" href="#" disabled>{{ i }}</a></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                <li class="page-item"><a class="page-link" href="?page=
+                                        {{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ i }}</a>
+                                </li>
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                     {% if page_obj.has_next %}
-                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        <li class="page-item"><a class="page-link" href="?page=
+
+
+                                {{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
                         </li>
                     {% else %}
                         <li class="page-item"><a class="page-link" href="#" disabled>Next</a></li>
@@ -159,11 +190,12 @@
                 <div class="modal-content">
                     <div class="card-body p-3 m-1">
                         <form action="{% url 'manage_orders' %}" method="POST">
-                        {% csrf_token %}
+                            {% csrf_token %}
                             <div class="form-group row">
                                 <label for="staticEmail" class="col-sm-2 col-form-label">Nomor Pesanan</label>
                                 <div class="col-sm-10">
-                                    <input type="text" readonly class="form-control-plaintext" id="order_id" name="order_id"
+                                    <input type="text" readonly class="form-control-plaintext" id="order_id"
+                                           name="order_id"
                                            value="{{ order.id }}">
                                 </div>
                             </div>
@@ -178,24 +210,26 @@
                                 <label for="staticEmail" class="col-sm-2 col-form-label">Proses</label>
                                 <div class="col-sm-10">
 
-                                        <select class="selectpicker "
-                                                data-style="select-with-transition btn-primary"
-                                                title="Status Pesanan" data-size="7" name="status">
+                                    <select class="selectpicker "
+                                            data-style="select-with-transition btn-primary"
+                                            title="Status Pesanan" data-size="7" name="status">
                                         <option disabled>Pilih Status Sekarang</option>
                                         {% if order.delivery.self_pick %}
                                             <option value="4">Belum Diambil</option>
                                             <option value="5">Telah Diambil</option>
-                                            {% else %}
+                                        {% else %}
                                             <option value="1">Dipersiapkan</option>
                                             <option value="2">Proses Antar</option>
                                             <option value="3">Telah Diantar</option>
                                         {% endif %}
                                         <option value="6">Dibatalkan</option>
-                                        </select>
+                                    </select>
 
                                 </div>
                             </div>
-                        <div class="text-right"><button class="btn btn-primary" type="submit">Proses</button></div>
+                            <div class="text-right">
+                                <button class="btn btn-primary" type="submit">Proses</button>
+                            </div>
                         </form>
                     </div>
                 </div>

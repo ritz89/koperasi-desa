@@ -201,7 +201,7 @@ def add_shopping_cart_item(request, pk):
     else:
         return
     update_qty = quantity - order_item.qty
-    err_msg = 'aaa'
+    err_msg = ''
     if quantity < 0:
         err_msg = 'pemesanan tidak bisa kurang dari nol'
         order = Order.objects.get(pk=order_item.order.id)
