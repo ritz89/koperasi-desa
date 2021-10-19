@@ -67,18 +67,54 @@ def add_order_item(request, item_id):
         item_in_cart = user_order.order_items.get(item=item)
     except OrderItem.DoesNotExist:
         item_in_cart = OrderItem.objects.create(order=user_order, item=item, qty=0, price=item.price)
-    if int(request.POST.get('qty')) > 0:
-        item_in_cart.qty = request.POST.get('qty')
+
+    quantity = int(request.POST.get('qty'))
+    update_qty = quantity - item_in_cart.qty
+    err_msg = ''
+    if quantity < 0:
+        err_msg = 'pemesanan tidak bisa kurang dari nol'
+        context = {
+            'order': user_order,
+            'err_msg': err_msg,
+            'item': item,
+            'ordered': user_order.order_items.get(item=item).qty
+        }
+        if request.htmx:
+            return render(request, 'layouts/partials/carts.html', context)
+        return render(request, 'commerce/pages/item-details/index.html', context)
+    if item_in_cart.item.stock < update_qty:
+        err_msg = 'pemesanan melebihi stok yang ada'
+        context = {
+            'order': user_order,
+            'err_msg': err_msg,
+            'item': item,
+            'ordered': user_order.order_items.get(item=item).qty
+        }
+        if request.htmx:
+            return render(request, 'layouts/partials/carts.html', context)
+        return render(request, 'commerce/pages/item-details/index.html', context)
+    if quantity > 0:
+        item_in_cart.qty = quantity
+        item_in_cart.item.hold_stock += update_qty
+        item_in_cart.item.stock -= update_qty
+        item_in_cart.item.save()
         item_in_cart.save()
     else:
+        if item_in_cart.qty > 0:
+            item_in_cart.item.qty += item_in_cart.qty
+            item_in_cart.item.hold_stock -= item_in_cart.qty
+            item_in_cart.item.save()
         item_in_cart.delete()
+
     context = {
         'order': user_order,
+        'err_msg': err_msg,
+        'item': item,
+        'ordered': user_order.order_items.get(item=item).qty
     }
-    print(user_order.total)
     if request.htmx:
         return render(request, 'layouts/partials/carts.html', context)
-    return render(request, 'commerce/pages/shopping_cart/index.html', context)
+    return render(request, 'commerce/pages/item-details/index.html', context)
 
 
 class ShoppingCartView(LoginRequiredMixin, View):
@@ -96,7 +132,8 @@ class ShoppingCartView(LoginRequiredMixin, View):
         context = {
             'order': order,
             'address': address,
-            'form': address_form
+            'form': address_form,
+            'err_msg':''
         }
         return render(request, 'commerce/pages/shopping_cart/index.html', context)
 
@@ -163,14 +200,40 @@ def add_shopping_cart_item(request, pk):
         quantity = int(request.POST.get('qty'))
     else:
         return
+    update_qty = quantity - order_item.qty
+    err_msg = 'aaa'
+    if quantity < 0:
+        err_msg = 'pemesanan tidak bisa kurang dari nol'
+        order = Order.objects.get(pk=order_item.order.id)
+        context = {
+            'order': order,
+            'err_msg': err_msg
+        }
+        return render(request, 'commerce/pages/shopping_cart/partials/order_items_list.html', context)
+    if order_item.item.stock < update_qty:
+        err_msg = 'pemesanan melebihi stok yang ada'
+        order = Order.objects.get(pk=order_item.order.id)
+        context = {
+            'order': order,
+            'err_msg': err_msg
+        }
+        return render(request, 'commerce/pages/shopping_cart/partials/order_items_list.html', context)
     if quantity > 0:
         order_item.qty = quantity
+        order_item.item.hold_stock += update_qty
+        order_item.item.stock -= update_qty
+        order_item.item.save()
         order_item.save()
     else:
+        if order_item.qty > 0:
+            order_item.item.stock += order_item.qty
+            order_item.item.hold_stock -= order_item.qty
+            order_item.item.save()
         order_item.delete()
     order = order_item.order
     context = {
-        'order': order
+        'order': order,
+        'err_msg': err_msg
     }
     return render(request, 'commerce/pages/shopping_cart/partials/order_items_list.html', context)
 

@@ -3,59 +3,64 @@
 {% load static %}
 
 {% language 'id' %}
-{% for item in order.order_items.all %}
-    <tr>
-        <td>
-            <div class="img-container">
-                {% if item.item.thumbnail %}
-                    <img src="{{ item.item.thumbnail.url }}"
-                         alt="{{ item.item.title }}">
-                {% else %}
-                    <img src="{% static '/img/no-image.png' %}"
-                         alt="no image">
-                {% endif %}
-            </div>
-        </td>
-        <td class="td-name">
-            <a href="{% url 'item-page' item.item.id %}">{{ item.item.title }}</a>
-            <br>
-            <small>{{ item.item.description|truncatechars:15 }} </small>
-        </td>
-        <td class="td-number">
-            <small>Rp.</small>{{ item.item.price|intcomma }}
-        </td>
-        <td class="td-number">
+    {% for item in order.order_items.all %}
+        <tr>
+            <td>
+                <div class="img-container">
+                    {% if item.item.thumbnail %}
+                        <img src="{{ item.item.thumbnail.url }}"
+                             alt="{{ item.item.title }}">
+                    {% else %}
+                        <img src="{% static '/img/no-image.png' %}"
+                             alt="no image">
+                    {% endif %}
+                </div>
+            </td>
+            <td class="td-name">
+                <a href="{% url 'item-page' item.item.id %}">{{ item.item.title }}</a>
+                <br>
+                <small>{{ item.item.description|truncatechars:15 }} </small>
+            </td>
+            <td class="td-number">
+                <small>Rp.</small>{{ item.item.price|intcomma }}
+            </td>
+            <td class="td-number">
 
-            <form class="form-inline float-md-right"
-                  hx-post="{% url 'shopping_cart_item_update' item.id %}"
-                  hx-target="#chart-items-table"
-            >
-                {% csrf_token %}
-
-                <input type="number" class="form-control"
-                       placeholder="qty" name="qty" id="qty"
-                       value="{{ item.qty|floatformat:0|intcomma }}"
-                       maxlength="4" size="4"
+                <form class="form-inline float-md-right"
+                      hx-post="{% url 'shopping_cart_item_update' item.id %}"
+                      hx-target="#chart-items-table"
+                      hx-swap="innerHTML"
                 >
-                <button type="submit" class="btn btn-sm btn-primary m-1">rubah</button>
-            </form>
+                    {% csrf_token %}
 
+                    <input type="number" class="form-control"
+                           placeholder="qty" name="qty" id="qty"
+                           value="{{ item.qty|floatformat:0|intcomma }}"
+                           maxlength="4" size="4"
+                    >
+                    <button type="submit" class="btn btn-sm btn-primary m-1">rubah</button>
+                </form>
 
+            </td>
+            <td class="td-number">
+                <small>Rp. </small> {{ item.subtotal|floatformat:0|intcomma }}
+            </td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="3">
         </td>
-        <td class="td-number">
-            <small>Rp. </small> {{ item.subtotal|floatformat:0|intcomma }}
+        <td class="td-total">
+            Total
+        </td>
+        <td class="td-price">
+            <small>Rp. </small> {{ order.subtotal|floatformat:0|intcomma }}
         </td>
     </tr>
-{% endfor %}
-<tr>
-    <td colspan="3">
-    </td>
-    <td class="td-total">
-        Total
-    </td>
-    <td class="td-price">
-        <small>Rp. </small> {{ order.subtotal|floatformat:0|intcomma }}
-    </td>
-</tr>
+    {% if err_msg %}
+        <tr>
+        <td colspan="5"><small class="text-danger">{{ err_msg }}</small></td>
+        </tr>
 
+    {% endif %}
 {% endlanguage %}

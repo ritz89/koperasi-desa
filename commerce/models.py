@@ -1,4 +1,5 @@
 import os
+from enum import auto
 
 import requests
 from django.contrib.auth.models import User
@@ -47,6 +48,7 @@ class Item(models.Model):
     price = models.IntegerField()
     stock = models.IntegerField()
     thumbnail = models.ImageField(upload_to='app_medias/thumbnails', null=True, storage=OverwriteStorage())
+    hold_stock = models.IntegerField(default=0)
     media = models.ManyToManyField(MediaLibrary)
 
     deleted = models.BooleanField(default=False)
@@ -145,6 +147,7 @@ class Order(models.Model):
     ordered_date = models.DateTimeField(null=True)
     ordered = models.BooleanField(default=False)
     delivery = models.OneToOneField(Delivery, on_delete=models.CASCADE, related_name='order', null=True)
+    finish_date = models.DateTimeField(null=True, blank=True)
 
     @property
     def subtotal(self):

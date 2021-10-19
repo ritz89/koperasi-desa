@@ -1,25 +1,43 @@
 import datetime
-from urllib.parse import urlencode
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Prefetch, Q
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+
+from commerce.models import Order
+
 
 # Create your views here.
-from django.urls import reverse
-from django.views import View
-from django.views.generic import DetailView
-
-from commerce.forms import DeliveryForm, AddressFormDusun, ProfileForm
-from commerce.models import Banner, ItemCategory, Item, MediaLibrary, Order, OrderItem, Delivery, Address, UserProfile
 
 
 @login_required()
 def manage_orders(request):
-    orders = Order.objects.all().filter(ordered=True)
+    if request.method == 'POST':
+        if 'order_id' in request.POST and 'status' in request.POST:
+            order_id = request.POST.get('order_id')
+            status = request.POST.get('status')
+            order = Order.objects.get(pk=order_id)
+            order.delivery.status = status
+            order.delivery.save()
+            if status == 3 or 5 or 6:
+                order.finish_date = datetime.datetime.now()
+                order.save()
+
+                for item in order.order_items.all():
+                    if status == 3 or 5:
+                        item.item.hold_stock -= item.qty
+                        if item.item.hold_stock < 0:
+                            item.item.hold_stock = 0
+                            item.item.save()
+                    else:
+                        item.item.hold_stock -= item.qty
+                        item.item.stock += item.qty
+                        if item.item.hold_stock < 0:
+                            item.item.hold_stock = 0
+                            item.item.save()
+
+    orders = Order.objects.all().filter(ordered=True).order_by('id')
+
     if 'status' in request.GET:
         orders.filter(status=request.GET.get['status'])
     paginator = Paginator(orders, 10)

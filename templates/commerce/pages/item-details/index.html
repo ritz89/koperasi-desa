@@ -7,12 +7,12 @@
 
 {% block header %}
     <div class="page-header page-header-mini header-filter">
-    {% if item.thumbnail %}
-        <div class="page-header-image" style="background-image: url('{{ item.thumbnail.url }}');"></div>
-    {% else %}
-        <div class="page-header-image" style="background-color: #ff471d;"></div>
-    {% endif %}
-    <div class="content-center text-center">
+        {% if item.thumbnail %}
+            <div class="page-header-image" style="background-image: url('{{ item.thumbnail.url }}');"></div>
+        {% else %}
+            <div class="page-header-image" style="background-color: #ff471d;"></div>
+        {% endif %}
+        <div class="content-center text-center">
             <div class="row">
                 <div class="col-md-8 ml-auto mr-auto">
                     <h1 class="title">{{ item.title }}</h1>
@@ -24,82 +24,95 @@
 
 {% block content %}
     <div class="section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
 
-                    <div id="productCarousel" class="carousel slide" data-ride="carousel" data-interval="8000">
+                <div id="productCarousel" class="carousel slide" data-ride="carousel" data-interval="8000">
 
-                        <ol class="carousel-indicators">
-                            {% for img in item.media.all %}
+                    <ol class="carousel-indicators">
+                        {% for img in item.media.all %}
 
-                                <li data-target="#productCarousel" data-slide-to="{{ forloop.counter0 }}"
-                                    class=""></li>
+                            <li data-target="#productCarousel" data-slide-to="{{ forloop.counter0 }}"
+                                class=""></li>
 
-                            {% endfor %}
-                        </ol>
-                        <div class="carousel-inner" role="listbox">
-                            {% for img in item.media.all %}
-                                {% if forloop.counter0 == 0 %}
-                                    <div class="carousel-item active">
-                                {% else %}
-                                    <div class="carousel-item">
-                                {% endif %}
-                            <img class="d-block img-raised" src="{{ img.image.url }}" alt="{{ img.image.label }}">
-                            </div>
-                            {% endfor %}
-                            </div>
-                            <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
-                                <button type="button" class="btn btn-primary btn-icon btn-round btn-sm" name="button">
-                                    <i class="now-ui-icons arrows-1_minimal-left"></i>
-                                </button>
-                            </a>
-                            <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
-                                <button type="button" class="btn btn-primary btn-icon btn-round btn-sm" name="button">
-                                    <i class="now-ui-icons arrows-1_minimal-right"></i>
-                                </button>
-                            </a>
+                        {% endfor %}
+                    </ol>
+                    <div class="carousel-inner" role="listbox">
+                        {% for img in item.media.all %}
+                            {% if forloop.counter0 == 0 %}
+                                <div class="carousel-item active">
+                            {% else %}
+                                <div class="carousel-item">
+                            {% endif %}
+                        <img class="d-block img-raised" src="{{ img.image.url }}" alt="{{ img.image.label }}">
                         </div>
-                    </div>
-                    <div class="col-md-6 ml-auto mr-auto">
-                        <h2 class="title"> {{ item.title }} </h2>
-                        <h5 class="category">{{ item.description }}</h5>
-
-                        <h2 class="main-price">Rp. {{ item.price|intcomma }}</h2>
-
-                        <div class="row justify-content-end">
-                            <form class="form-inline"
-                                  hx-post="{% url 'add_order_item' item.id %}"
-                                  hx-target="#shopping-cart"
-                            >
-                             {% csrf_token %}
-                                <input type="number" class="form-control" placeholder="qty" name="qty" id="qty" value="{{ ordered|floatformat:0|intcomma }}">
-                                {% if user.is_authenticated %}
-                                <button class="btn btn-primary mr-3" type="submit">Add to Cart &nbsp;<i
-                                    class="now-ui-icons shopping_cart-simple"></i></button>
-                                {% else %}
-                                    <a class="btn btn-primary mr-3" href="{% url 'account_login' %}">Add to Cart &nbsp;<i
-                                    class="now-ui-icons shopping_cart-simple"></i></a>
-                                {% endif %}
-                            </form>
-
+                        {% endfor %}
                         </div>
+                        <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+                            <button type="button" class="btn btn-primary btn-icon btn-round btn-sm" name="button">
+                                <i class="now-ui-icons arrows-1_minimal-left"></i>
+                            </button>
+                        </a>
+                        <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+                            <button type="button" class="btn btn-primary btn-icon btn-round btn-sm" name="button">
+                                <i class="now-ui-icons arrows-1_minimal-right"></i>
+                            </button>
+                        </a>
                     </div>
                 </div>
-                <div class="features-4">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-8 ml-auto mr-auto text-center">
-                                <h2 class="title">Cari barang dengan kategori yang sama</h2>
-                                <h4 class="description">di sini ada daftar barang-barang
-                                    yang mungkin anda juga inginkan. </h4>
-                            </div>
+                <div class="col-md-6 ml-auto mr-auto">
+                    <h2 class="title"> {{ item.title }} </h2>
+                    <h5 class="category">{{ item.description }}</h5>
+
+                    <h2 class="main-price">Rp. {{ item.price|intcomma }}</h2>
+
+                    <div class="row justify-content-end">
+                        <form class="form-inline"
+                              method="post"
+                              action="{% url 'add_order_item' item.id %}"
+                        >
+                            {% csrf_token %}
+                            <input type="number" class="form-control" placeholder="qty" name="qty" id="qty"
+                                   value="{{ ordered|floatformat:0|intcomma }}">
+                            {% if user.is_authenticated %}
+                                <button class="btn btn-primary mr-3" type="submit">Add to Cart &nbsp;<i
+                                        class="now-ui-icons shopping_cart-simple"></i></button>
+                            {% else %}
+                                <a class="btn btn-primary mr-3" href="{% url 'account_login' %}">Add to Cart &nbsp;<i
+                                        class="now-ui-icons shopping_cart-simple"></i></a>
+                            {% endif %}
+                        </form>
+                    {% if err_msg %}
+                        <blockquote class="blockquote text-right">
+                            <p class="mb-0 text-danger">{{ err_msg }}</p>
+                            <footer class="blockquote-footer">terjadi kesalahan</footer>
+                        </blockquote>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="features-4">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 ml-auto mr-auto text-center">
+                            <h2 class="title">Cari barang dengan kategori yang sama</h2>
+                            <h4 class="description">di sini ada daftar barang-barang
+                                yang mungkin anda juga inginkan. </h4>
                         </div>
-                        <div class="row">
-                            {% include 'commerce/pages/home-page/partials/item_lists.html' %}
-                        </div>
+                    </div>
+                    <div class="row">
+                        {% include 'commerce/pages/home-page/partials/item_lists.html' %}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        $('#shopping-cart').on('change', () => {
+            alert({{ err_msg }})
+        })
+    </script>
 {% endblock %}
