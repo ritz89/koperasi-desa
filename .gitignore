@@ -1,3 +1,5 @@
 /venv/
 /commerce/migrations/
 /db.sqlite3
+/media/
+/kopdes/settings.py
